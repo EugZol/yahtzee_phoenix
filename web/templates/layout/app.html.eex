@@ -7,6 +7,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
     <title>Hello YahtzeePhoenix!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>

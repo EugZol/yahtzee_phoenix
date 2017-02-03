@@ -1,5 +1,6 @@
-<div class='row form-group'>
-  <div class='col-md-12'>
-    Score
-  </div>
+<div id='score' class='row'>
 </div>
+
+<button id='begin_game'>Begin game</button>
+<button id='reroll_dice'>Reroll dice</button>
+<button id='register_combination'>Register combination</button>

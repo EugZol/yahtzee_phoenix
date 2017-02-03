@@ -4,57 +4,38 @@
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
+import rand from "./rand"
 
-let socket = new Socket("/socket", {params: {token: window.userToken}})
+let socket = new Socket("/socket")
 
-// When you connect, you'll often need to authenticate the client.
-// For example, imagine you have an authentication plug, `MyAuth`,
-// which authenticates the session and assigns a `:current_user`.
-// If the current user exists you can assign the user's token in
-// the connection for use in the layout.
-//
-// In your "web/router.ex":
-//
-//     pipeline :browser do
-//       ...
-//       plug MyAuth
-//       plug :put_user_token
-//     end
-//
-//     defp put_user_token(conn, _) do
-//       if current_user = conn.assigns[:current_user] do
-//         token = Phoenix.Token.sign(conn, "user socket", current_user.id)
-//         assign(conn, :user_token, token)
-//       else
-//         conn
-//       end
-//     end
-//
-// Now you need to pass this token to JavaScript. You can do so
-// inside a script tag in "web/templates/layout/app.html.eex":
-//
-//     <script>window.userToken = "<%= assigns[:user_token] %>";</script>
-//
-// You will need to verify the user token in the "connect/2" function
-// in "web/channels/user_socket.ex":
-//
-//     def connect(%{"token" => token}, socket) do
-//       # max_age: 1209600 is equivalent to two weeks in seconds
-//       case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
-//         {:ok, user_id} ->
-//           {:ok, assign(socket, :user, user_id)}
-//         {:error, reason} ->
-//           :error
-//       end
-//     end
-//
-// Finally, pass the token on connect as below. Or remove it
-// from connect if you don't care about authentication.
+socket.connect({user_token: rand()})
 
-socket.connect()
+let channel = socket.channel("game", {})
 
-// Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("topic:subtopic", {})
+let begin_game_button    = $('#begin_game')
+let reroll_dice_button   = $('#reroll_dice')
+let register_combination = $('#register_combination')
+
+begin_game_button.on('click', event => {
+  channel.push('begin_game')
+})
+
+reroll_dice_button.on('click', event => {
+  channel.push('reroll_dice', [1])
+})
+
+register_combination.on('click', event => {
+  channel.push('register_combination', 'ones')
+})
+
+channel.on('game_state', payload => {
+  $('#score').html(JSON.stringify(payload))
+})
+
+channel.on('game_started', (_) => {
+  $('#score').html("Game started")
+})
+
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
