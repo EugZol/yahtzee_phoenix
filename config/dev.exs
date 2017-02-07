@@ -40,3 +40,5 @@ config :yahtzee_phoenix, YahtzeePhoenix.Repo,
   database: "yahtzee_phoenix_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :comeonin, :bcrypt_log_rounds, 8

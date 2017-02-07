@@ -4,11 +4,23 @@
 // To use Phoenix channels, the first step is to import Socket
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
-import rand from "./rand"
 
-let socket = new Socket("/socket")
+function rand() {
+  return Math.random().toString(36).substr(2)
+}
 
-socket.connect({user_token: rand()})
+if (!sessionStorage.getItem('user_id')) {
+  sessionStorage.setItem('user_id', rand())
+}
+if (!sessionStorage.getItem('user_token')) {
+  sessionStorage.setItem('user_token', rand())
+}
+
+let socket = new Socket("/socket", {params: {
+  user_token: sessionStorage.getItem('user_token'),
+  user_id: sessionStorage.getItem('user_id')
+}})
+socket.connect()
 
 let channel = socket.channel("game", {})
 

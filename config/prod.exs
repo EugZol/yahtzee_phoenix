@@ -19,6 +19,8 @@ config :yahtzee_phoenix, YahtzeePhoenix.Endpoint,
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :comeonin, :bcrypt_log_rounds, 8
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

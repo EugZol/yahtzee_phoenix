@@ -5,8 +5,8 @@ defmodule YahtzeePhoenix.Client do
 
   # Client API
 
-  def start_link do
-    GenServer.start_link(__MODULE__, [])
+  def start_link(params) do
+    GenServer.start_link(__MODULE__, params)
   end
 
   def reroll_dice!(client_pid, dice_to_reroll) do
@@ -19,19 +19,19 @@ defmodule YahtzeePhoenix.Client do
 
   # Server API
 
-  def init(_) do
+  def init(%{user_token: user_token, user_id: user_id}) do
     player_pid = Yahtzee.Servers.Room.register_join!
 
-    {:ok, %{player_pid: player_pid}}
+    {:ok, %{player_pid: player_pid, user_token: user_token, user_id: user_id}}
   end
 
   def handle_cast({:ask_which_dice_to_reroll, game_state}, state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", game_state
+    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", add_user_data(game_state, state)
     {:noreply, state}
   end
 
   def handle_cast({:ask_combination, game_state}, state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", game_state
+    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", add_user_data(game_state, state)
     {:noreply, state}
   end
 
@@ -45,5 +45,11 @@ defmodule YahtzeePhoenix.Client do
       Yahtzee.Core.Player.register_combination! player_pid, String.to_atom(combination)
     end
     {:noreply, state}
+  end
+
+  defp add_user_data(game_state, state) do
+    Map.merge game_state, %{
+      user_id: state[:user_id]
+    }
   end
 end

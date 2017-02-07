@@ -1,22 +1,11 @@
 defmodule YahtzeePhoenix.GameChannel do
   use YahtzeePhoenix.Web, :channel
-  require Logger
 
   def join("game", %{}, socket) do
-    # {:ok, client_pid} = YahtzeePhoenix.Client.start_link(socket)
-    # Yahtzee.Servers.Room.begin_game!
-    # {:ok, assign(socket, :client_pid, client_pid)}
-
-    {:ok, client_pid} = YahtzeePhoenix.Client.start_link()
-    {:ok, assign(socket, :client_pid, client_pid)}
-  end
-
-  def join("game:" <> user_token, %{}, socket) do
-    # {:ok, client_pid} = YahtzeePhoenix.Client.start_link(socket)
-    # Yahtzee.Servers.Room.begin_game!
-    # {:ok, assign(socket, :client_pid, client_pid)}
-
-    {:ok, client_pid} = YahtzeePhoenix.Client.start_link()
+    {:ok, client_pid} = YahtzeePhoenix.Client.start_link(%{
+      user_token: socket.assigns.user_token,
+      user_id: socket.assigns.user_id
+    })
     {:ok, assign(socket, :client_pid, client_pid)}
   end
 

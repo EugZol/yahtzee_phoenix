@@ -21,7 +21,18 @@
             <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
           </ul>
         </nav>
+
         <span class="logo"></span>
+
+        <div class="text-center buffer-bottom">
+          <%= if @conn.assigns[:current_user] do %>
+            <script>sessionStore['user_id'] = '<%= @conn.assigns.current_user.id %>'</script>
+            Welcome, <%= @conn.assigns.current_user.name %>
+            <%= link "Logout", to: session_path(@conn, :delete), method: :delete, class: "btn btn-primary btn-xs" %>
+          <% else %>
+            <%= link "Login", to: session_path(@conn, :new), class: "btn btn-primary btn-xs" %>
+          <% end %>
+        </div>
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>

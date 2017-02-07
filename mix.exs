@@ -19,7 +19,7 @@ defmodule YahtzeePhoenix.Mixfile do
   def application do
     [mod: {YahtzeePhoenix, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :yahtzee]]
+                    :phoenix_ecto, :postgrex, :yahtzee, :comeonin]]
   end
 
   # Specifies which paths to compile per environment.
@@ -38,7 +38,8 @@ defmodule YahtzeePhoenix.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mp"}]
+     {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mp"},
+     {:comeonin, "~> 3.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
