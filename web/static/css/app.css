@@ -1,13 +1,52 @@
 /* This file is for your main application css. */
 
-#score {
-  border: 1px solid #777;
-  height: 400px;
-  padding: 10px;
-  margin: 10px 10px 50px 10px;
-  overflow: scroll;
+.score {
+  padding: 0 10px;
 }
 
 .buffer-bottom {
   margin-bottom: 10px;
+}
+
+.buffer-top {
+  margin-top: 10px;
+}
+
+.dice {
+  text-align: center;
+}
+
+.die {
+  display: inline-block;
+}
+
+.die-face {
+  width: 106px;
+  height: 106px;
+  background-image: url("/images/dice.png");
+  background-position-y: -1px;
+}
+
+.die-face-1 {
+  background-position-x: 0px;
+}
+
+.die-face-2 {
+  background-position-x: -107px;
+}
+
+.die-face-3 {
+  background-position-x: -214px;
+}
+
+.die-face-4 {
+  background-position-x: -321px;
+}
+
+.die-face-5 {
+  background-position-x: -428px;
+}
+
+.die-face-6 {
+  background-position-x: -535px;
 }
