@@ -5,17 +5,6 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
-function rand() {
-  return Math.random().toString(36).substr(2)
-}
-
-if (!sessionStorage.getItem('user_id')) {
-  sessionStorage.setItem('user_id', rand())
-}
-if (!sessionStorage.getItem('user_token')) {
-  sessionStorage.setItem('user_token', rand())
-}
-
 let socket = new Socket("/socket", {params: {
   user_token: sessionStorage.getItem('user_token'),
   user_id: sessionStorage.getItem('user_id')
@@ -26,30 +15,67 @@ let channel = socket.channel("game", {})
 
 let begin_game_button    = $('#begin_game')
 let reroll_dice_button   = $('#reroll_dice')
-let register_combination = $('#register_combination')
+let register_combination = $('.register_combination')
 
 begin_game_button.on('click', event => {
   channel.push('begin_game')
 })
 
 reroll_dice_button.on('click', event => {
-  channel.push('reroll_dice', [1])
+  let to_reroll = [1, 2, 3, 4, 5].filter(i => {
+    return $('#die-' + i + '-input').prop("checked")
+  })
+  channel.push('reroll_dice', to_reroll)
 })
 
 register_combination.on('click', event => {
-  channel.push('register_combination', 'ones')
+  channel.push('register_combination', $(event.target).data('combination'))
 })
 
+// Payload example: {
+//   "user_id":"6",
+//   "upper_bonus":0,
+//   "total":0,
+//   "current_round":{
+//     "throws_left":2,
+//     "dice":[5,6,3,3,5]
+//   }
+// }
 channel.on('game_state', payload => {
-  $('#score').html(JSON.stringify(payload))
+  console.log(payload)
+
+  let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
+  for (let key of score) {
+    $("#" + key + "> td.user_" + payload["user_id"]).text(payload[key])
+  }
+
+  resetDice()
+
+  payload["current_round"]["dice"].forEach((face, i) => {
+    $("#die-" + (i + 1)).addClass("die-face-" + face)
+  })
 })
 
-channel.on('game_started', (_) => {
-  $('#score').html("Game started")
+channel.on('error', ({message}) => {
+  $('.alert-danger').text(message)
 })
+
+// channel.on('game_started', (payload) => {
+//   for (let key in payload) {
+//     console.log(key)
+//     $("#" + key).text(payload[key])
+//   }
+// })
 
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 export default socket
+
+function resetDice() {
+  for (let i of [1, 2, 3, 4, 5, 6]) {
+    $('.die-face').removeClass('die-face-' + i)
+    $('#die-' + i + '-input').prop("checked", false)
+  }
+}

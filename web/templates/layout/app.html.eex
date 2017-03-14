@@ -24,7 +24,6 @@
 
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <%= if @conn.assigns[:current_user] do %>
-                <script>sessionStore['user_id'] = '<%= @conn.assigns.current_user.id %>'</script>
                 <div class="navbar-text navbar-right">
                   Welcome, <%= @conn.assigns.current_user.name %> |
                   <%= link "Logout", to: session_path(@conn, :delete), method: :delete %>
@@ -47,6 +46,12 @@
       </main>
 
     </div> <!-- /container -->
+    <%= if @conn.assigns[:current_user] do %>
+      <script>
+        sessionStorage['user_id'] = '<%= @conn.assigns.current_user.id %>'
+        sessionStorage['user_token'] = '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>'
+      </script>
+    <% end %>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

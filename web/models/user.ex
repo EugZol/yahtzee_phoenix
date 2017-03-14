@@ -43,4 +43,16 @@ defmodule YahtzeePhoenix.User do
       changeset
     end
   end
+
+  def generate_token(user) do
+    Comeonin.Bcrypt.hashpwsalt(token_base(user.id))
+  end
+
+  def validate_token(user_id, token) do
+    Comeonin.Bcrypt.checkpw(token_base(user_id), token)
+  end
+
+  defp token_base(user_id) do
+    to_string(user_id) <> Application.get_env(:yahtzee_phoenix, YahtzeePhoenix.Endpoint)[:secret_key_base]
+  end
 end

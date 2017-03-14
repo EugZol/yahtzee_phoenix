@@ -12,7 +12,8 @@ config :yahtzee_phoenix, YahtzeePhoenix.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../", __DIR__)]]
+                    cd: Path.expand("../", __DIR__)]],
+  secret_key_base: "IYAg3u901Y7sP5IEy8WeldaJ7buEd9mgELMnwaX0r5ZuTxDos6ILJ3ax1MzwKIfW"
 
 
 # Watch static and templates for browser reloading.

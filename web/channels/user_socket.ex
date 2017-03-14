@@ -23,7 +23,7 @@ defmodule YahtzeePhoenix.UserSocket do
     socket =
       socket
       |> assign(:user_token, params["user_token"])
-      |> assign(:user_id, params["user_id"])
+      |> assign(:user_id, String.to_integer(params["user_id"]))
     {:ok, socket}
   end
 

@@ -1,104 +1,36 @@
+<%= if @conn.assigns[:current_user] do %>
 <div id='score' class='score row'>
   <table class="table">
     <thead>
       <tr>
         <th>Player</th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
+        <th>Konstantin</th>
+        <th>Vasiliy</th>
+        <th>Isabella</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Ones</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Twos</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Threes</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Fours</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Fives</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Sixes</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Upper Bonus</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
+      <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
+        <tr id="<%= symbol %>">
+          <td><%= label %></td>
+          <td class="user_<%= @conn.assigns.current_user.id %>">
+            <button data-combination='<%= symbol %>' class="register_combination">+</button>
+          </td>
+          <td></td>
+          <td></td>
+        </tr>
+      <%= end %>
     </tbody>
     <tbody>
-      <tr>
-        <td>Three of a Kind</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Four of a Kind</td>
-        <td></td>
+      <tr id="upper_bonus">
+        <td>Upper Bonus</td>
+        <td class="user_<%= @conn.assigns.current_user.id %>"></td>
         <td></td>
         <td></td>
       </tr>
-      <tr>
-        <td>Yatzy</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Full House</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Small Straight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Large Straight</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>Change</td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr>
+      <tr id="total">
         <td>Total</td>
-        <td></td>
+        <td class="user_<%= @conn.assigns.current_user.id %>"></td>
         <td></td>
         <td></td>
       </tr>
@@ -107,11 +39,11 @@
 </div>
 
 <div class="dice">
-  <%= for index <- (1..6) do %>
+  <%= for index <- (1..5) do %>
     <div class="die">
-      <div class="die-face die-face-<%= index %>"></div>
+      <div class="die-face die-face-<%= index %>" id="die-<%= index %>"></div>
       <div class="die-check buffer-top">
-        <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>" value="" />
+        <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
       </div>
     </div>
   <% end %>
@@ -119,4 +51,4 @@
 
 <button id='begin_game'>Begin game</button>
 <button id='reroll_dice'>Reroll dice</button>
-<button id='register_combination'>Register combination</button>
+<% end %>
