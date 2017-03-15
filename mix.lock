@@ -20,4 +20,4 @@
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "postgrex": {:hex, :postgrex, "0.13.0", "e101ab47d0725955c5c8830ae8812412992e02e4bd9db09e17abb0a5d82d09c7", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.1", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
-  "yahtzee": {:git, "git@bitbucket.org:eugzol/yahtzee.git", "d5487f6884a4db48059c27866f6bf507a8d07fd5", [branch: "mp"]}}
+  "yahtzee": {:git, "git@bitbucket.org:eugzol/yahtzee.git", "16a695f57c4af7882c1ddae36e1e6b42574f9b60", [branch: "mp"]}}

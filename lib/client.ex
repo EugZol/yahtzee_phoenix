@@ -5,8 +5,8 @@ defmodule YahtzeePhoenix.Client do
 
   # Client API
 
-  def start_link(params) do
-    GenServer.start_link(__MODULE__, params)
+  def start_link(user_id, name) do
+    GenServer.start_link(__MODULE__, user_id, name: name)
   end
 
   def reroll_dice!(client_pid, dice_to_reroll) do
@@ -17,22 +17,31 @@ defmodule YahtzeePhoenix.Client do
     :ok = GenServer.cast(client_pid, {:register_combination, combination})
   end
 
+  def broadcast_game_state(client_pid) do
+    :ok = GenServer.cast(client_pid, :broadcast_game_state)
+  end
+
   # Server API
 
-  def init(%{user_token: user_token, user_id: user_id}) do
+  def init(user_id) do
     player_pid = Yahtzee.Servers.Room.register_join!
 
-    {:ok, %{player_pid: player_pid, user_token: user_token, user_id: user_id}}
+    {:ok, %{player_pid: player_pid, user_id: user_id}}
+  end
+
+  def handle_cast(:broadcast_game_state, state = %{player_pid: player_pid}) do
+    broadcast_game_state(Yahtzee.Core.Player.game_state(player_pid), state)
+    {:noreply, state}
   end
 
   def handle_cast({:ask_which_dice_to_reroll, game_state}, state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", add_user_data(game_state, state)
+    broadcast_game_state(game_state, state)
     new_state = Map.put(state, :in_reroll, true)
     {:noreply, new_state}
   end
 
   def handle_cast({:ask_combination, game_state}, state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", add_user_data(game_state, state)
+    broadcast_game_state(game_state, state)
     {:noreply, state}
   end
 
@@ -41,7 +50,7 @@ defmodule YahtzeePhoenix.Client do
     {:noreply, %{state | in_reroll: nil}}
   end
   def handle_cast({:reroll_dice, _}, state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "error", add_user_data(%{message: "Wrong moment for reroll"}, state)
+    broadcast_error(state, "Wrong moment for reroll")
     {:noreply, state}
   end
 
@@ -50,16 +59,20 @@ defmodule YahtzeePhoenix.Client do
       try do
         Yahtzee.Core.Player.register_combination! player_pid, String.to_atom(combination)
       rescue
-        _ -> broadcast_register_combination_error(state)
+        _ -> broadcast_error(state, "Wrong time for register combination")
       end
     else
-      broadcast_register_combination_error(state)
+      broadcast_error(state, "Wrong time for register combination")
     end
     {:noreply, state}
   end
 
-  defp broadcast_register_combination_error(state) do
-    YahtzeePhoenix.Endpoint.broadcast "game", "error", add_user_data(%{message: "Wrong moment to register combination"}, state)
+  defp broadcast_error(state, message) do
+    YahtzeePhoenix.Endpoint.broadcast "game", "error", add_user_data(%{message: message}, state)
+  end
+
+  defp broadcast_game_state(game_state, state) do
+    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", add_user_data(game_state, state)
   end
 
   defp add_user_data(game_state, state) do

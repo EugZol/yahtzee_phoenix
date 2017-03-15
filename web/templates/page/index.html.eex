@@ -39,9 +39,9 @@
 </div>
 
 <div class="dice">
-  <%= for index <- (1..5) do %>
+  <%= for index <- (0..4) do %>
     <div class="die">
-      <div class="die-face die-face-<%= index %>" id="die-<%= index %>"></div>
+      <div class="die-face" id="die-<%= index %>"></div>
       <div class="die-check buffer-top">
         <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
       </div>

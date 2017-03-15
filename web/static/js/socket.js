@@ -22,7 +22,7 @@ begin_game_button.on('click', event => {
 })
 
 reroll_dice_button.on('click', event => {
-  let to_reroll = [1, 2, 3, 4, 5].filter(i => {
+  let to_reroll = [0, 1, 2, 3, 4].filter(i => {
     return $('#die-' + i + '-input').prop("checked")
   })
   channel.push('reroll_dice', to_reroll)
@@ -52,7 +52,7 @@ channel.on('game_state', payload => {
   resetDice()
 
   payload["current_round"]["dice"].forEach((face, i) => {
-    $("#die-" + (i + 1)).addClass("die-face-" + face)
+    $("#die-" + i).addClass("die-face-" + face)
   })
 })
 
@@ -74,7 +74,7 @@ channel.join()
 export default socket
 
 function resetDice() {
-  for (let i of [1, 2, 3, 4, 5, 6]) {
+  for (let i of [0, 1, 2, 3, 4, 5, 6]) {
     $('.die-face').removeClass('die-face-' + i)
     $('#die-' + i + '-input').prop("checked", false)
   }

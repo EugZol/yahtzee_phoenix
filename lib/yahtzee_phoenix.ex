@@ -14,6 +14,7 @@ defmodule YahtzeePhoenix do
       supervisor(YahtzeePhoenix.Endpoint, []),
       # Start your own worker by calling: YahtzeePhoenix.Worker.start_link(arg1, arg2, arg3)
       # worker(YahtzeePhoenix.Worker, [arg1, arg2, arg3]),
+      supervisor(YahtzeePhoenix.ClientSupervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

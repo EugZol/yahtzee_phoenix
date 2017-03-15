@@ -40,7 +40,7 @@ defmodule YahtzeePhoenix.Mixfile do
      {:cowboy, "~> 1.0"},
      {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mp"},
      {:comeonin, "~> 3.0"},
-     {:gproc, "~> 0.6.0"}]
+     {:gproc, "~> 0.6"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
