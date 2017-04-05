@@ -99,13 +99,13 @@ function myTurn(payload) {
 }
 
 function hideControls() {
-  begin_game_button.hide()
   reroll_dice_button.hide()
   register_combination.hide()
+  $('.die-check').hide()
 }
 
 function showControls() {
-  begin_game_button.show()
   reroll_dice_button.show()
   register_combination.show()
+  $('.die-check').show()
 }
