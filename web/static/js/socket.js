@@ -46,7 +46,16 @@ channel.on('game_state', payload => {
 
   let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
   for (let key of score) {
-    $("#" + key + "> td.user_" + payload["user_id"]).text(payload[key])
+    var selector = ".score-combination-" + key + "> td"
+
+    if (payload["user_id"] == sessionStorage.getItem('user_id')) {
+      selector += ".user_" + payload["user_id"]
+    } else {
+      $('.score-player-names .opponent').html(payload["user_id"])
+      selector += ".opponent"
+    }
+
+    $(selector).text(payload[key])
   }
 
   resetDice()

@@ -2,33 +2,34 @@
 <div id='score' class='score row'>
   <table class="table">
     <thead>
-      <tr>
+      <%# Player names %>
+      <tr class="score-player-names">
         <th>Player</th>
-        <th>Konstantin</th>
-        <th>Vasiliy</th>
-        <th>Isabella</th>
+        <th class="me"></th>
+        <th class="opponent"></th>
+        <th></th>
       </tr>
     </thead>
     <tbody>
       <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
-        <tr id="<%= symbol %>">
+        <tr class="score-combination-<%= symbol %>">
           <td><%= label %></td>
           <td class="user_<%= @conn.assigns.current_user.id %>">
             <button data-combination='<%= symbol %>' class="register_combination">+</button>
           </td>
-          <td></td>
+          <td class="opponent"></td>
           <td></td>
         </tr>
       <%= end %>
     </tbody>
     <tbody>
-      <tr id="upper_bonus">
+      <tr class="score-upper_bonus">
         <td>Upper Bonus</td>
         <td class="user_<%= @conn.assigns.current_user.id %>"></td>
         <td></td>
         <td></td>
       </tr>
-      <tr id="total">
+      <tr class="score-total">
         <td>Total</td>
         <td class="user_<%= @conn.assigns.current_user.id %>"></td>
         <td></td>
