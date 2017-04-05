@@ -48,11 +48,13 @@ channel.on('game_state', payload => {
   for (let key of score) {
     var selector = ".score-combination-" + key + "> td"
 
-    if (payload["user_id"] == sessionStorage.getItem('user_id')) {
+    if (myTurn(payload)) {
       selector += ".user_" + payload["user_id"]
+      showControls()
     } else {
       $('.score-player-names .opponent').html(payload["user_id"])
       selector += ".opponent"
+      hideControls()
     }
 
     $(selector).text(payload[key])
@@ -90,4 +92,20 @@ function resetDice() {
   for (let i of [0, 1, 2, 3, 4]) {
     $('#die-' + i + '-input').prop("checked", false)
   }
+}
+
+function myTurn(payload) {
+  return payload["user_id"].toString() == sessionStorage.getItem('user_id')
+}
+
+function hideControls() {
+  begin_game_button.hide()
+  reroll_dice_button.hide()
+  register_combination.hide()
+}
+
+function showControls() {
+  begin_game_button.show()
+  reroll_dice_button.show()
+  register_combination.show()
 }
