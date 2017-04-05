@@ -64,13 +64,17 @@ defmodule YahtzeePhoenix.Client do
     if Enum.member?(@combination_strings, combination) && can_register_combination?(state) do
       try do
         Yahtzee.Core.Player.register_combination! player_pid, String.to_atom(combination)
+        handle_cast(:broadcast_game_state, state)
       rescue
         _ -> broadcast_error(state, "Wrong time for register combination")
       end
     else
       broadcast_error(state, "Wrong time for register combination")
     end
-    new_state = Map.delete(state, :in_ask_combination)
+    new_state =
+      state
+      |> Map.delete(:in_ask_combination)
+      |> Map.delete(:in_reroll)
     {:noreply, new_state}
   end
 

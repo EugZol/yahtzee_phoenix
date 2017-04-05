@@ -21,9 +21,4 @@ defmodule YahtzeePhoenix.Router do
     resources "/users", UserController
     resources "/session", SessionController, singleton: true, only: [:new, :create, :delete]
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", YahtzeePhoenix do
-  #   pipe_through :api
-  # end
 end
