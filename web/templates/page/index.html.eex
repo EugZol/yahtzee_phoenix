@@ -26,13 +26,13 @@
       <tr class="score-upper_bonus">
         <td>Upper Bonus</td>
         <td class="user_<%= @conn.assigns.current_user.id %>"></td>
-        <td></td>
+        <td class="opponent"></td>
         <td></td>
       </tr>
       <tr class="score-total">
         <td>Total</td>
         <td class="user_<%= @conn.assigns.current_user.id %>"></td>
-        <td></td>
+        <td class="opponent"></td>
         <td></td>
       </tr>
     </tbody>
