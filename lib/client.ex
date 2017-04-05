@@ -34,6 +34,8 @@ defmodule YahtzeePhoenix.Client do
     {:noreply, state}
   end
 
+  # From Player
+
   def handle_cast({:ask_which_dice_to_reroll, game_state}, state) do
     broadcast_game_state(game_state, state)
     new_state = Map.put(state, :in_reroll, true)
@@ -42,12 +44,16 @@ defmodule YahtzeePhoenix.Client do
 
   def handle_cast({:ask_combination, game_state}, state) do
     broadcast_game_state(game_state, state)
-    {:noreply, state}
+    new_state = Map.put(state, :in_ask_combination, true)
+    {:noreply, new_state}
   end
+
+  # From Channel
 
   def handle_cast({:reroll_dice, dice_to_reroll}, state = %{player_pid: player_pid, in_reroll: true}) do
     Yahtzee.Core.Player.next_roll! player_pid, dice_to_reroll
-    {:noreply, %{state | in_reroll: nil}}
+    new_state = Map.delete(state, :in_reroll)
+    {:noreply, new_state}
   end
   def handle_cast({:reroll_dice, _}, state) do
     broadcast_error(state, "Wrong moment for reroll")
@@ -55,7 +61,7 @@ defmodule YahtzeePhoenix.Client do
   end
 
   def handle_cast({:register_combination, combination}, state = %{player_pid: player_pid}) do
-    if Enum.member?(@combination_strings, combination) do
+    if Enum.member?(@combination_strings, combination) && can_register_combination?(state) do
       try do
         Yahtzee.Core.Player.register_combination! player_pid, String.to_atom(combination)
       rescue
@@ -64,7 +70,8 @@ defmodule YahtzeePhoenix.Client do
     else
       broadcast_error(state, "Wrong time for register combination")
     end
-    {:noreply, state}
+    new_state = Map.delete(state, :in_ask_combination)
+    {:noreply, new_state}
   end
 
   defp broadcast_error(state, message) do
@@ -79,5 +86,9 @@ defmodule YahtzeePhoenix.Client do
     Map.merge game_state, %{
       user_id: state[:user_id]
     }
+  end
+
+  defp can_register_combination?(state) do
+    state[:in_reroll] || state[:in_ask_combination]
   end
 end
