@@ -46,7 +46,7 @@ channel.on('game_state', payload => {
 
   let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
   for (let key of score) {
-    var selector = ".score-combination-" + key + "> td"
+    var selector = ".score-" + key + "> td"
 
     if (myTurn(payload)) {
       selector += ".user_" + payload["user_id"]

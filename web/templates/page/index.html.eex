@@ -12,7 +12,7 @@
     </thead>
     <tbody>
       <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
-        <tr class="score-combination-<%= symbol %>">
+        <tr class="score-<%= symbol %>">
           <td><%= label %></td>
           <td class="user_<%= @conn.assigns.current_user.id %>">
             <button data-combination='<%= symbol %>' class="register_combination">+</button>
