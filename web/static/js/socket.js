@@ -74,8 +74,11 @@ channel.join()
 export default socket
 
 function resetDice() {
-  for (let i of [0, 1, 2, 3, 4, 5, 6]) {
+  for (let i of [1, 2, 3, 4, 5, 6]) {
     $('.die-face').removeClass('die-face-' + i)
+  }
+
+  for (let i of [0, 1, 2, 3, 4]) {
     $('#die-' + i + '-input').prop("checked", false)
   }
 }
