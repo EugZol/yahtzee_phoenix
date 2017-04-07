@@ -1,10 +1,14 @@
 defmodule YahtzeePhoenix.GameChannel do
   use YahtzeePhoenix.Web, :channel
 
+  alias YahtzeePhoenix.User
+
   def join("game", %{}, socket) do
+    user_id = socket.assigns.user_id
     {:ok, client_pid} = start_or_find_client(%{
       user_token: socket.assigns.user_token,
-      user_id: socket.assigns.user_id
+      user_id: user_id,
+      user_name: Repo.get!(User, user_id).name
     })
     YahtzeePhoenix.Client.broadcast_game_state(client_pid)
     {:ok, assign(socket, :client_pid, client_pid)}
@@ -43,9 +47,9 @@ defmodule YahtzeePhoenix.GameChannel do
     {:noreply, socket}
   end
 
-  def start_or_find_client(%{user_token: user_token, user_id: user_id}) do
+  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name}) do
     if YahtzeePhoenix.User.validate_token(user_id, user_token) do
-      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(user_id)
+      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name})
     else
       :error
     end
