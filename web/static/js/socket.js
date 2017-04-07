@@ -44,6 +44,8 @@ register_combination.on('click', event => {
 channel.on('game_state', payload => {
   console.log(payload)
 
+  begin_game_button.hide()
+
   let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
   for (let key of score) {
     var selector = ".score-" + key + "> td"

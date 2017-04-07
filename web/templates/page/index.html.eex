@@ -1,55 +1,59 @@
 <%= if @conn.assigns[:current_user] do %>
-<div id='score' class='score row'>
-  <table class="table">
-    <thead>
-      <%# Player names %>
-      <tr class="score-player-names">
-        <th>Player</th>
-        <th class="me"></th>
-        <th class="opponent"></th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
-        <tr class="score-<%= symbol %>">
-          <td><%= label %></td>
-          <td class="user_<%= @conn.assigns.current_user.id %>">
-            <button data-combination='<%= symbol %>' class="register_combination">+</button>
-          </td>
-          <td class="opponent"></td>
-          <td></td>
-        </tr>
-      <%= end %>
-    </tbody>
-    <tbody>
-      <tr class="score-upper_bonus">
-        <td>Upper Bonus</td>
-        <td class="user_<%= @conn.assigns.current_user.id %>"></td>
-        <td class="opponent"></td>
-        <td></td>
-      </tr>
-      <tr class="score-total">
-        <td>Total</td>
-        <td class="user_<%= @conn.assigns.current_user.id %>"></td>
-        <td class="opponent"></td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div class='score row'>
+    <div class="col-md-12">
+      <table class="table table-condensed">
+        <thead>
+          <%# Player names %>
+          <tr class="score-player-names">
+            <th>Player</th>
+            <th class="me"></th>
+            <th class="opponent"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
+            <tr class="score-<%= symbol %>">
+              <td><%= label %></td>
+              <td class="user_<%= @conn.assigns.current_user.id %>">
+                <button
+                  data-combination='<%= symbol %>'
+                  class="register_combination">
+                  +
+                </button>
+              </td>
+              <td class="opponent"></td>
+            </tr>
+            <%= end %>
+        </tbody>
+        <tbody>
+          <tr class="score-upper_bonus">
+            <td>Upper Bonus</td>
+            <td class="user_<%= @conn.assigns.current_user.id %>"></td>
+            <td class="opponent"></td>
+          </tr>
+          <tr class="score-total">
+            <td>Total</td>
+            <td class="user_<%= @conn.assigns.current_user.id %>"></td>
+            <td class="opponent"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="dice">
+        <%= for index <- (0..4) do %>
+          <div class="die">
+            <label class="die-face" id="die-<%= index %>" for="die-<%= index %>-input"></label>
+            <div class="die-check buffer-top">
+              <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
+            </div>
+          </div>
+        <% end %>
+      </div>
 
-<div class="dice">
-  <%= for index <- (0..4) do %>
-    <div class="die">
-      <div class="die-face" id="die-<%= index %>"></div>
-      <div class="die-check buffer-top">
-        <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
+      <button id='reroll_dice' class='btn btn-primary'>Reroll dice</button>
+
+      <div class="buffer-top">
+        <button id='begin_game' class='btn btn-primary'>Begin game</button>
       </div>
     </div>
-  <% end %>
-</div>
-
-<button id='begin_game'>Begin game</button>
-<button id='reroll_dice'>Reroll dice</button>
+  </div>
 <% end %>

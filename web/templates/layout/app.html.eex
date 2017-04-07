@@ -19,16 +19,16 @@
         <nav class="navbar navbar-default">
           <div class="container-fluid">
             <div class="navbar-header">
-              <a class="navbar-brand" href="#">Yatzy</a>
+              <a class="navbar-brand" href="/">Yatzy</a>
             </div>
 
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <div class="navbar-collapse">
               <%= if @conn.assigns[:current_user] do %>
                 <div class="navbar-text navbar-right">
                   Welcome, <%= @conn.assigns.current_user.name %> |
                   <%= link "Logout", to: session_path(@conn, :delete), method: :delete %>
                 </div>
-                <% else %>
+              <% else %>
                 <ul class="nav navbar-nav navbar-right">
                   <li><%= link "Login", to: session_path(@conn, :new) %></li>
                 </ul>
@@ -45,7 +45,7 @@
         <%= render @view_module, @view_template, assigns %>
       </main>
 
-    </div> <!-- /container -->
+    </div>
     <%= if @conn.assigns[:current_user] do %>
       <script>
         sessionStorage['user_id'] = '<%= @conn.assigns.current_user.id %>'
