@@ -1,9 +1,5 @@
 /* This file is for your main application css. */
 
-.score {
-  padding: 0 10px;
-}
-
 .buffer-bottom {
   margin-bottom: 10px;
 }
@@ -16,37 +12,38 @@
   text-align: center;
 }
 
-.die {
-  display: inline-block;
+.die-check input {
+  margin: 0
 }
 
 .die-face {
-  width: 106px;
-  height: 106px;
-  background-image: url("/images/dice.png");
-  background-position-y: -1px;
+  width: 70px;
+  height: 71px;
+  background-image: url("/images/dice_small.png");
+  background-position-y: -2px;
+  margin-bottom: 0;
 }
 
 .die-face-1 {
-  background-position-x: 0px;
+  background-position-x: -1px;
 }
 
 .die-face-2 {
-  background-position-x: -107px;
+  background-position-x: -72px;
 }
 
 .die-face-3 {
-  background-position-x: -214px;
+  background-position-x: -144px;
 }
 
 .die-face-4 {
-  background-position-x: -321px;
+  background-position-x: -215px;
 }
 
 .die-face-5 {
-  background-position-x: -428px;
+  background-position-x: -286px;
 }
 
 .die-face-6 {
-  background-position-x: -535px;
+  background-position-x: -358px;
 }
