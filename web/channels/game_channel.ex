@@ -10,7 +10,7 @@ defmodule YahtzeePhoenix.GameChannel do
       user_id: user_id,
       user_name: Repo.get!(User, user_id).name
     })
-    send self, :broadcast_game_state
+    send self(), :broadcast_game_state
     {:ok, assign(socket, :client_pid, client_pid)}
   end
 
