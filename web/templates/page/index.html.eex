@@ -6,7 +6,7 @@
           <%# Player names %>
           <tr class="score-player-names">
             <th>Player</th>
-            <th class="player me"></th>
+            <th class="player me"><%= @conn.assigns.current_user.name %></th>
           </tr>
         </thead>
         <tbody>

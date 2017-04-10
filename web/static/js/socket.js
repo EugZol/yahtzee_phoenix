@@ -75,8 +75,11 @@ export default socket
 // }
 function renderGameState(payload) {
   payload.players.forEach((player) => {
-    if ($(".score-player-names .user_" + player['id']).length == 0) {
+    let selector = ".score-player-names .user_" + player['id'];
+
+    if ($(selector).length == 0) {
       addPlayer(player)
+      $(selector).html(player['name']);
     }
 
     renderPlayerScore(player)
@@ -146,7 +149,7 @@ function showControls(payload) {
 }
 
 function addPlayer(player) {
-  var td = "<td class='player user_" + player['id'] + "'>" + player['name'] + "</td>"
+  var td = "<td class='player user_" + player['id'] + "'></td>"
 
   $('.player').after(td)
 }
