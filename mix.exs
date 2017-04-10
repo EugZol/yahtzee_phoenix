@@ -38,7 +38,7 @@ defmodule YahtzeePhoenix.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mp"},
+     {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mr"},
      {:comeonin, "~> 3.0"},
      {:gproc, "~> 0.6"}]
   end

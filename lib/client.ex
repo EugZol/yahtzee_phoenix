@@ -24,14 +24,16 @@ defmodule YahtzeePhoenix.Client do
   def broadcast_game_state(room_pid, self_state \\ nil) do
     %{
       player_pids: player_pids,
-      player_game_states: player_game_states,
       current_player_number: current_player_number,
       game_started: game_started
     } = Yahtzee.Servers.Room.state(room_pid)
 
     game_states =
       player_pids
-      |> Enum.map(fn(player_pid) -> player_game_states[player_pid] end)
+      |> Enum.map(fn(player_pid) -> Yahtzee.Core.Player.game_state(player_pid) end)
+
+    IO.puts "player_pids: #{inspect(player_pids)}"
+    IO.puts "game_states: #{inspect(game_states)}"
 
     extract_user_data_from_client = fn(client_pid) ->
       if self() == client_pid do
@@ -53,7 +55,7 @@ defmodule YahtzeePhoenix.Client do
         %{
           game_started: game_started,
           players: players,
-          current_player_id: Enum.at(players, current_player_number)[:id]
+          current_player_id: Enum.at(players, current_player_number - 1)[:id]
         }
       else
         %{
@@ -61,6 +63,8 @@ defmodule YahtzeePhoenix.Client do
           players: players
         }
       end
+
+    IO.puts "Sending game_state: #{inspect(result)}"
 
     YahtzeePhoenix.Endpoint.broadcast! "game", "game_state", result
 
