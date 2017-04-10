@@ -14,22 +14,22 @@ socket.connect()
 
 let channel = socket.channel("game", {})
 
-let begin_game_button    = $('#begin_game')
-let reroll_dice_button   = $('#reroll_dice')
-let register_combination = $('.register_combination')
+let beginGameButton    = $('#begin_game')
+let rerollDiceButton   = $('#reroll_dice')
+let registerCombinationsButtons = $('.register_combination')
 
-begin_game_button.on('click', event => {
+beginGameButton.on('click', event => {
   channel.push('begin_game')
 })
 
-reroll_dice_button.on('click', event => {
+rerollDiceButton.on('click', event => {
   let to_reroll = [0, 1, 2, 3, 4].filter(i => {
     return $('#die-' + i + '-input').prop("checked")
   })
   channel.push('reroll_dice', to_reroll)
 })
 
-register_combination.on('click', event => {
+registerCombinationsButtons.on('click', event => {
   channel.push('register_combination', $(event.target).data('combination'))
 })
 
@@ -38,11 +38,12 @@ channel.on('game_state', payload => {
   console.log(payload)
 
   if(payload['game_started']) {
-    begin_game_button.hide()
+    beginGameButton.hide()
     renderGameState(payload)
   } else {
-    reroll_dice_button.hide()
-    register_combination.hide()
+    rerollDiceButton.hide()
+    registerCombinationsButtons.hide()
+    hideDice()
   }
 })
 
@@ -101,6 +102,7 @@ function renderPlayerScore(player) {
 
 function renderDice(dice) {
   resetDice()
+  showDice()
 
   dice.forEach((face, i) => {
     $("#die-" + i).addClass("die-face-" + face)
@@ -117,6 +119,14 @@ function resetDice() {
   }
 }
 
+function hideDice() {
+  $('.die-face').hide()
+}
+
+function showDice() {
+  $('.die-face').show()
+}
+
 function myTurn(payload) {
   return payload["current_player_id"].toString() == sessionStorage.getItem('user_id')
 }
@@ -131,18 +141,18 @@ function currentPlayer(payload) {
 
 function showControls(payload) {
   if (myTurn(payload)) {
-    register_combination.show()
+    registerCombinationsButtons.show()
 
     let currentRound = currentPlayer(payload)['game_state']['current_round']
 
     if (currentRound['throws_left'] == 0) {
-      reroll_dice_button.hide()
+      rerollDiceButton.hide()
     } else {
-      reroll_dice_button.show()
+      rerollDiceButton.show()
     }
   } else {
-    reroll_dice_button.hide()
-    register_combination.hide()
+    rerollDiceButton.hide()
+    registerCombinationsButtons.hide()
   }
 }
 
@@ -151,5 +161,3 @@ function addPlayer(player) {
 
   $('.player').after(td)
 }
-
-window.addPlayer = addPlayer
