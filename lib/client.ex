@@ -116,7 +116,6 @@ defmodule YahtzeePhoenix.Client do
   def handle_call({:register_combination, combination}, _, state = %{player_pid: player_pid}) do
     if Enum.member?(@combination_strings, combination) && can_register_combination?(state) do
       Yahtzee.Core.Player.register_combination! player_pid, String.to_atom(combination)
-      broadcast_game_state(Yahtzee.Servers.Room, state)
       new_state =
         state
         |> Map.delete(:in_ask_combination)

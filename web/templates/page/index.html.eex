@@ -1,6 +1,6 @@
 <%= if @conn.assigns[:current_user] do %>
   <div class='row'>
-    <div class="col-md-8">
+    <div class="col-xs-8">
       <table class="table table-condensed" style="margin-top: 0">
         <thead>
           <%# Player names %>
@@ -35,7 +35,7 @@
       </table>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-xs-4">
       <div class="dice">
         <div class="buffer-top">
           <button id='begin_game' class='btn btn-primary'>Begin game</button>

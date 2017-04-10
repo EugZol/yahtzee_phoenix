@@ -71,7 +71,6 @@ export default socket
 function renderGameState(payload) {
   payload.players.forEach((player) => {
     let selector = ".score-player-names .user_" + player['id'];
-
     if ($(selector).length == 0) {
       addPlayer(player)
       $(selector).html(player['name']);
@@ -161,6 +160,8 @@ function showControls(payload) {
 
 function addPlayer(player) {
   var td = "<td class='player user_" + player['id'] + "'></td>"
+  var th = "<th class='player user_" + player['id'] + "'></th>"
 
-  $('.player').after(td)
+  $('th.player:nth-child(2)').before(th)
+  $('td.player:nth-child(2)').before(td)
 }
