@@ -13,7 +13,11 @@
 }
 
 .die-check input {
-  margin: 0
+  display: none;
+}
+
+.die-check input:checked + label {
+  opacity: .3;
 }
 
 .die-face {
@@ -46,4 +50,8 @@
 
 .die-face-6 {
   background-position-x: -358px;
+}
+
+.player {
+  text-align: center;
 }

@@ -47,20 +47,15 @@ channel.on('game_state', payload => {
   begin_game_button.hide()
 
   let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
+
+  // Update user scores table cell
   for (let key of score) {
-    var selector = ".score-" + key + "> td"
-
-    if (myTurn(payload)) {
-      selector += ".user_" + payload["user_id"]
-      showControls()
-    } else {
-      $('.score-player-names .opponent').html(payload["user_id"])
-      selector += ".opponent"
-      hideControls()
-    }
-
-    $(selector).text(payload[key])
+    $(".score-" + key + " .user_" + payload["user_id"]).text(payload[key])
   }
+
+  $('.score-player-names .opponent').html(payload["user_id"])
+
+  showControls(payload)
 
   resetDice()
 
@@ -101,13 +96,26 @@ function myTurn(payload) {
 }
 
 function hideControls() {
-  reroll_dice_button.hide()
-  register_combination.hide()
-  $('.die-check').hide()
 }
 
-function showControls() {
-  reroll_dice_button.show()
-  register_combination.show()
-  $('.die-check').show()
+function showControls(payload) {
+  if (myTurn(payload)) {
+    register_combination.show()
+
+    if (payload['current_round']['throws_left'] == 0) {
+      reroll_dice_button.hide()
+    } else {
+      reroll_dice_button.show()
+    }
+  } else {
+    reroll_dice_button.hide()
+    register_combination.hide()
+  }
 }
+
+function addPlayer(player_id) {
+  var td = "<td class='player user_" + player_id + "'></td>"
+  $('.player').after(td)
+}
+
+window.addPlayer = addPlayer

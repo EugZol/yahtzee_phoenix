@@ -6,35 +6,28 @@
           <%# Player names %>
           <tr class="score-player-names">
             <th>Player</th>
-            <th class="me"></th>
-            <th class="opponent"></th>
+            <th class="player me"></th>
           </tr>
         </thead>
         <tbody>
           <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
             <tr class="score-<%= symbol %>">
               <td><%= label %></td>
-              <td class="text-center user_<%= @conn.assigns.current_user.id %>">
-                <button
-                  data-combination='<%= symbol %>'
-                  class="register_combination btn btn-xs">
-                  +
-                </button>
+              <td class="player user_<%= @conn.assigns.current_user.id %>">
+                <button data-combination='<%= symbol %>'
+                  class="register_combination btn btn-xs">+</button>
               </td>
-              <td class="text-center opponent"></td>
             </tr>
-            <%= end %>
+          <%= end %>
         </tbody>
         <tbody>
           <tr class="score-upper_bonus">
             <td>Upper Bonus</td>
-            <td class="text-center user_<%= @conn.assigns.current_user.id %>"></td>
-            <td class="text-center opponent"></td>
+            <td class="player user_<%= @conn.assigns.current_user.id %>"></td>
           </tr>
           <tr class="score-total">
             <td>Total</td>
-            <td class="text-center user_<%= @conn.assigns.current_user.id %>"></td>
-            <td class="text-center opponent"></td>
+            <td class="player user_<%= @conn.assigns.current_user.id %>"></td>
           </tr>
         </tbody>
       </table>
@@ -44,19 +37,21 @@
       <div class="dice">
         <div class="buffer-top">
           <button id='begin_game' class='btn btn-primary'>Begin game</button>
-          <button id='reroll_dice' class='btn btn-primary btn-sm'>Reroll dice</button>
         </div>
 
         <%= for index <- (0..4) do %>
           <div class="die buffer-top">
-            <label class="die-face" id="die-<%= index %>" for="die-<%= index %>-input"></label>
             <div class="die-check">
               <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
+              <label class="die-face" id="die-<%= index %>" for="die-<%= index %>-input"></label>
             </div>
           </div>
         <% end %>
-      </div>
 
+        <div class="buffer-top">
+          <button id='reroll_dice' class='btn btn-primary btn-sm'>Reroll dice</button>
+        </div>
+      </div>
     </div>
   </div>
 <% end %>

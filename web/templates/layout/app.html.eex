@@ -48,10 +48,15 @@
     </div>
     <%= if @conn.assigns[:current_user] do %>
       <script>
-        sessionStorage['user_id'] = '<%= @conn.assigns.current_user.id %>'
-        sessionStorage['user_token'] = '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>'
+        sessionStorage.setItem('user_id', '<%= @conn.assigns.current_user.id %>')
+        sessionStorage.setItem('user_token', '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>')
+      </script>
+      <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <% else %>
+      <script>
+        sessionStorage.removeItem('user_id')
+        sessionStorage.removeItem('user_token')
       </script>
     <% end %>
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
