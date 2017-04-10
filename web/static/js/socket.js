@@ -34,6 +34,7 @@ register_combination.on('click', event => {
 })
 
 channel.on('game_state', payload => {
+  console.log("Received game state: ")
   console.log(payload)
 
   if(payload['game_started']) {
@@ -74,7 +75,7 @@ export default socket
 // }
 function renderGameState(payload) {
   payload.players.forEach((player) => {
-    if ($(".score-" + key + " .user_" + player_id).length == 0) {
+    if ($(".score-player-names .user_" + player['id']).length == 0) {
       addPlayer(player)
     }
 
@@ -83,10 +84,12 @@ function renderGameState(payload) {
 
   showControls(payload)
 
-  renderDice(currentPlayer()["current_round"]["dice"])
+  renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
 }
 
 function renderPlayerScore(player) {
+  console.log(player)
+
   let score = $(Object.keys(player['game_state']))
     .not(["user_id", "current_round"]).get()
 
@@ -122,14 +125,16 @@ function currentPlayer(payload) {
 
   return $.grep(payload["players"], function(player) {
     return player['id'] == id
-  })
+  })[0]
 }
 
 function showControls(payload) {
   if (myTurn(payload)) {
     register_combination.show()
 
-    if (payload['current_round']['throws_left'] == 0) {
+    let currentRound = currentPlayer(payload)['game_state']['current_round']
+
+    if (currentRound['throws_left'] == 0) {
       reroll_dice_button.hide()
     } else {
       reroll_dice_button.show()

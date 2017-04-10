@@ -53,7 +53,7 @@ defmodule YahtzeePhoenix.Client do
         %{
           game_started: game_started,
           players: players,
-          current_player_id: Enum.at(players, current_player_number)[:user_id]
+          current_player_id: Enum.at(players, current_player_number)[:id]
         }
       else
         %{
@@ -62,9 +62,9 @@ defmodule YahtzeePhoenix.Client do
         }
       end
 
-    # IO.puts inspect(result)
+    YahtzeePhoenix.Endpoint.broadcast! "game", "game_state", result
 
-    YahtzeePhoenix.Endpoint.broadcast "game", "game_state", result
+    result
   end
 
   # Server API

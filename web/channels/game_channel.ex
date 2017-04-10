@@ -10,7 +10,7 @@ defmodule YahtzeePhoenix.GameChannel do
       user_id: user_id,
       user_name: Repo.get!(User, user_id).name
     })
-    YahtzeePhoenix.Client.broadcast_game_state(Yahtzee.Servers.Room)
+    push socket, "game_state", YahtzeePhoenix.Client.broadcast_game_state(Yahtzee.Servers.Room)
     {:ok, assign(socket, :client_pid, client_pid)}
   end
 
@@ -19,8 +19,6 @@ defmodule YahtzeePhoenix.GameChannel do
       Yahtzee.Servers.Room.begin_game!
     rescue
       _ -> push socket, "error", %{message: "Error beginning the game"}
-    else
-      _ -> YahtzeePhoenix.Client.broadcast_game_state(Yahtzee.Servers.Room)
     end
     {:noreply, socket}
   end
