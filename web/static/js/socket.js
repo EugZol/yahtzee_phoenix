@@ -91,13 +91,11 @@ function renderGameState(payload) {
 }
 
 function renderPlayerScore(player) {
-  console.log(player)
-
   let score = $(Object.keys(player['game_state']))
-    .not(["user_id", "current_round"]).get()
+    .not(["current_round", "game_over"]).get()
 
   for (let key of score) {
-    $(".score-" + key + " .user_" + player['id']).text(score[key])
+    $(".score-" + key + " .user_" + player['id']).text(player['game_state'][key])
   }
 }
 
