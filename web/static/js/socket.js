@@ -37,14 +37,8 @@ channel.on('game_state', payload => {
   console.log("Received game state: ")
   console.log(payload)
 
-  if(payload['game_started']) {
-    beginGameButton.hide()
-    renderGameState(payload)
-  } else {
-    rerollDiceButton.hide()
-    registerCombinationsButtons.hide()
-    hideDice()
-  }
+  renderGameState(payload)
+
 })
 
 channel.on('error', ({message}) => {
@@ -83,12 +77,21 @@ function renderGameState(payload) {
       $(selector).html(player['name']);
     }
 
-    renderPlayerScore(player)
+    if (payload['game_started']) {
+      renderPlayerScore(player)
+    }
   })
 
   showControls(payload)
 
-  renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
+  if (payload['game_started']) {
+    renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
+    beginGameButton.hide()
+  } else {
+    rerollDiceButton.hide()
+    registerCombinationsButtons.hide()
+    hideDice()
+  }
 }
 
 function renderPlayerScore(player) {
@@ -128,7 +131,7 @@ function showDice() {
 }
 
 function myTurn(payload) {
-  return payload["current_player_id"].toString() == sessionStorage.getItem('user_id')
+  return payload['current_player_id'].toString() == sessionStorage.getItem('user_id')
 }
 
 function currentPlayer(payload) {
@@ -140,7 +143,7 @@ function currentPlayer(payload) {
 }
 
 function showControls(payload) {
-  if (myTurn(payload)) {
+  if (payload['game_started'] && myTurn(payload)) {
     registerCombinationsButtons.show()
 
     let currentRound = currentPlayer(payload)['game_state']['current_round']
