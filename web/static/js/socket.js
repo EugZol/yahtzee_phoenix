@@ -9,6 +9,7 @@ let socket = new Socket("/socket", {params: {
   user_token: sessionStorage.getItem('user_token'),
   user_id: sessionStorage.getItem('user_id')
 }})
+
 socket.connect()
 
 let channel = socket.channel("game", {})
@@ -32,54 +33,75 @@ register_combination.on('click', event => {
   channel.push('register_combination', $(event.target).data('combination'))
 })
 
-// Payload example: {
-//   "user_id":"6",
-//   "upper_bonus":0,
-//   "total":0,
-//   "current_round":{
-//     "throws_left":2,
-//     "dice":[5,6,3,3,5]
-//   }
-// }
 channel.on('game_state', payload => {
   console.log(payload)
 
-  begin_game_button.hide()
-
-  let score = $(Object.keys(payload)).not(["user_id", "current_round"]).get()
-
-  // Update user scores table cell
-  for (let key of score) {
-    $(".score-" + key + " .user_" + payload["user_id"]).text(payload[key])
+  if(payload['game_started']) {
+    begin_game_button.hide()
+    renderGameState(payload)
+  } else {
+    reroll_dice_button.hide()
+    register_combination.hide()
   }
-
-  $('.score-player-names .opponent').html(payload["user_id"])
-
-  showControls(payload)
-
-  resetDice()
-
-  payload["current_round"]["dice"].forEach((face, i) => {
-    $("#die-" + i).addClass("die-face-" + face)
-  })
 })
 
 channel.on('error', ({message}) => {
   $('.alert-danger').text(message)
 })
 
-// channel.on('game_started', (payload) => {
-//   for (let key in payload) {
-//     console.log(key)
-//     $("#" + key).text(payload[key])
-//   }
-// })
-
 channel.join()
   .receive("ok", resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 export default socket
+
+// Payload example: {
+//   game_started: ...
+//   current_player_id: ...
+//   players: [{
+//     id:
+//     name:
+//     game_state: {
+//       current_round: {
+//         throws_left:
+//         dice:
+//       },
+//       upper_bonus: 0,
+//       total: 0
+//       ones: ...
+//     }
+//   }]
+// }
+function renderGameState(payload) {
+  payload.players.forEach((player) => {
+    if ($(".score-" + key + " .user_" + player_id).length == 0) {
+      addPlayer(player)
+    }
+
+    renderPlayerScore(player)
+  })
+
+  showControls(payload)
+
+  renderDice(currentPlayer()["current_round"]["dice"])
+}
+
+function renderPlayerScore(player) {
+  let score = $(Object.keys(player['game_state']))
+    .not(["user_id", "current_round"]).get()
+
+  for (let key of score) {
+    $(".score-" + key + " .user_" + player['id']).text(score[key])
+  }
+}
+
+function renderDice(dice) {
+  resetDice()
+
+  dice.forEach((face, i) => {
+    $("#die-" + i).addClass("die-face-" + face)
+  })
+}
 
 function resetDice() {
   for (let i of [1, 2, 3, 4, 5, 6]) {
@@ -92,10 +114,15 @@ function resetDice() {
 }
 
 function myTurn(payload) {
-  return payload["user_id"].toString() == sessionStorage.getItem('user_id')
+  return payload["current_player_id"].toString() == sessionStorage.getItem('user_id')
 }
 
-function hideControls() {
+function currentPlayer(payload) {
+  let id = payload["current_player_id"]
+
+  return $.grep(payload["players"], function(player) {
+    return player['id'] == id
+  })
 }
 
 function showControls(payload) {
@@ -113,8 +140,9 @@ function showControls(payload) {
   }
 }
 
-function addPlayer(player_id) {
-  var td = "<td class='player user_" + player_id + "'></td>"
+function addPlayer(player) {
+  var td = "<td class='player user_" + player['id'] + "'>" + player['name'] + "</td>"
+
   $('.player').after(td)
 }
 
