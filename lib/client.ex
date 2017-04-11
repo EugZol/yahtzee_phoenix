@@ -91,9 +91,6 @@ defmodule YahtzeePhoenix.Client do
       player_pids
       |> Enum.map(fn(player_pid) -> Yahtzee.Core.Player.game_state(player_pid) end)
 
-    IO.puts "player_pids: #{inspect(player_pids)}"
-    IO.puts "game_states: #{inspect(game_states)}"
-
     extract_user_data_from_client = fn(client_pid) ->
       if self() == client_pid do
         %{id: user_id, name: user_name}

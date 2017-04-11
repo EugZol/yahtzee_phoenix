@@ -55,3 +55,12 @@
 .player {
   text-align: center;
 }
+
+.table th {
+  font-weight: normal;
+}
+
+.table th.me {
+  font-weight: bold;
+
+}
