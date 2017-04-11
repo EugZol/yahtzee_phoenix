@@ -5,7 +5,7 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
-let connectSocket = function({userId, userToken, roomToken}) {
+let connectSocket = function({userId, userToken, roomToken, roomId}) {
   let socket = new Socket("/socket", {params: {
     user_token: userToken,
     user_id: userId
@@ -15,7 +15,7 @@ let connectSocket = function({userId, userToken, roomToken}) {
 
   console.log("Connecting to room: " + roomToken)
 
-  let channel = socket.channel("game", {room_token: roomToken})
+  let channel = socket.channel("game:" + roomId, {room_token: roomToken})
 
   let beginGameButton    = $('#begin_game')
   let rerollDiceButton   = $('#reroll_dice')
@@ -143,7 +143,7 @@ let connectSocket = function({userId, userToken, roomToken}) {
   }
 
   function myTurn(payload) {
-    return payload['current_player_id'].toString() == sessionStorage.getItem('user_id')
+    return payload['current_player_id'].toString() == userId
   }
 
   function currentPlayer(payload) {

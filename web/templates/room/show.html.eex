@@ -64,7 +64,8 @@
     window.authData = {
       userId: '<%= @conn.assigns.current_user.id %>',
       userToken: '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>',
-      roomToken: '<%= @conn.assigns.room.token %>'
+      roomToken: '<%= @conn.assigns.room.token %>',
+      roomId: '<%= @conn.assigns.room.id %>'
     }
     require("web/static/js/socket").default(window.authData)
   </script>

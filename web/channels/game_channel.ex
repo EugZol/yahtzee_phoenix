@@ -4,16 +4,17 @@ defmodule YahtzeePhoenix.GameChannel do
   alias YahtzeePhoenix.User
   alias YahtzeePhoenix.Room
 
-  def join("game", %{"room_token" => room_token}, socket) do
+  def join("game:" <> room_id, %{"room_token" => room_token}, socket) do
     user_id = socket.assigns.user_id
-    case Repo.get_by(Room, token: room_token) do
-      %Room{id: room_id} ->
+    case Repo.get_by(Room, token: room_token, id: room_id) do
+      %Room{} ->
         {:ok, room_pid} = Yahtzee.RoomSupervisor.spawn_or_find_room(room_id)
         {:ok, client_pid} = start_or_find_client(%{
           user_token: socket.assigns.user_token,
           user_id: user_id,
           user_name: Repo.get!(User, user_id).name,
-          room_pid: room_pid
+          room_pid: room_pid,
+          room_id: room_id
         })
         send self(), :broadcast_game_state
         socket =
@@ -22,6 +23,7 @@ defmodule YahtzeePhoenix.GameChannel do
           |> assign(:room_pid, room_pid)
         {:ok, socket}
       nil -> {:error, "room is not found"}
+      _ -> {:error, "access denied"}
     end
   end
 
@@ -57,9 +59,9 @@ defmodule YahtzeePhoenix.GameChannel do
     end
   end
 
-  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name, room_pid: room_pid}) do
+  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
     if YahtzeePhoenix.User.validate_token(user_id, user_token) do
-      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid})
+      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id})
     else
       :error
     end

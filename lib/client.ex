@@ -5,8 +5,8 @@ defmodule YahtzeePhoenix.Client do
 
   # Client API
 
-  def start_link(%{user_id: user_id, user_name: user_name, room_pid: room_pid}, name) do
-    GenServer.start_link(__MODULE__, %{user_id: user_id, user_name: user_name, room_pid: room_pid}, name: name)
+  def start_link(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}, name) do
+    GenServer.start_link(__MODULE__, %{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}, name: name)
   end
 
   def reroll_dice!(client_pid, dice_to_reroll) do
@@ -27,10 +27,10 @@ defmodule YahtzeePhoenix.Client do
 
   # Server API
 
-  def init(%{user_id: user_id, user_name: user_name, room_pid: room_pid}) do
+  def init(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
     player_pid = Yahtzee.Servers.Room.register_join!(room_pid)
 
-    {:ok, %{player_pid: player_pid, user_id: user_id, user_name: user_name, room_pid: room_pid}}
+    {:ok, %{player_pid: player_pid, user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}}
   end
 
   def handle_call(:game_state, _, state = %{player_pid: player_pid}) do
@@ -80,7 +80,7 @@ defmodule YahtzeePhoenix.Client do
     end
   end
 
-  def handle_cast(:broadcast_game_state, state = %{room_pid: room_pid, user_id: user_id, user_name: user_name}) do
+  def handle_cast(:broadcast_game_state, state = %{room_pid: room_pid, user_id: user_id, user_name: user_name, room_id: room_id}) do
     %{
       player_pids: player_pids,
       current_player_number: current_player_number,
@@ -120,7 +120,7 @@ defmodule YahtzeePhoenix.Client do
         }
       end
 
-    YahtzeePhoenix.Endpoint.broadcast! "game", "game_state", result
+    YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
 
     {:noreply, state}
   end

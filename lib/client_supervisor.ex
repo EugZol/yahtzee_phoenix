@@ -9,10 +9,10 @@ defmodule YahtzeePhoenix.ClientSupervisor do
     supervise([worker(YahtzeePhoenix.Client, [])], strategy: :simple_one_for_one)
   end
 
-  def spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid}) do
+  def spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
     case find_client(room_pid, user_id) do
       :undefined ->
-        Supervisor.start_child(__MODULE__, [%{user_id: user_id, user_name: user_name, room_pid: room_pid}, via_tuple(room_pid, user_id)])
+        Supervisor.start_child(__MODULE__, [%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}, via_tuple(room_pid, user_id)])
       pid -> {:ok, pid}
     end
   end
