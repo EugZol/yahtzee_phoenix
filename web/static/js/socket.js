@@ -38,7 +38,6 @@ channel.on('game_state', payload => {
   console.log(payload)
 
   renderGameState(payload)
-
 })
 
 channel.on('error', ({message}) => {
@@ -71,6 +70,7 @@ export default socket
 function renderGameState(payload) {
   payload.players.forEach((player) => {
     let selector = ".score-player-names .user_" + player['id'];
+
     if ($(selector).length == 0) {
       addPlayer(player)
       $(selector).html(player['name']);
@@ -81,10 +81,13 @@ function renderGameState(payload) {
     }
   })
 
+  let player = currentPlayer(payload)
+
   showControls(payload)
 
   if (payload['game_started']) {
-    renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
+    highlightPlayer(player.id)
+    renderDice(player["game_state"]["current_round"]["dice"])
     beginGameButton.hide()
   } else {
     rerollDiceButton.hide()
@@ -129,6 +132,14 @@ function showDice() {
   $('.die-face').show()
 }
 
+function disableDice() {
+  $('.die-check input').attr('disabled', true);
+}
+
+function enableDice() {
+  $('.die-check input').attr('disabled', true);
+}
+
 function myTurn(payload) {
   return payload['current_player_id'].toString() == sessionStorage.getItem('user_id')
 }
@@ -149,11 +160,14 @@ function showControls(payload) {
 
     if (currentRound['throws_left'] == 0) {
       rerollDiceButton.hide()
+      disableDice()
     } else {
       rerollDiceButton.show()
+      enableDice()
     }
   } else {
     rerollDiceButton.hide()
+    disableDice()
     registerCombinationsButtons.hide()
   }
 }
@@ -164,4 +178,9 @@ function addPlayer(player) {
 
   $('th.player:nth-child(2)').before(th)
   $('td.player:nth-child(2)').before(td)
+}
+
+function highlightPlayer(id) {
+  $('.score-player-names .player').removeClass('text-primary')
+  $('.score-player-names .user_' + id).addClass('text-primary')
 }

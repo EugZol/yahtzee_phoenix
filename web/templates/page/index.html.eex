@@ -5,8 +5,8 @@
         <thead>
           <%# Player names %>
           <tr class="score-player-names">
-            <th>Player</th>
-            <th class="player user_<%= @conn.assigns.current_user.id%>">
+            <th></th>
+            <th class="player me user_<%= @conn.assigns.current_user.id%>">
               <%= @conn.assigns.current_user.name %>
             </th>
           </tr>
