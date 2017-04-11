@@ -5,13 +5,15 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
-let socket = new Socket("/socket", {params: {
-  user_token: sessionStorage.getItem('user_token'),
-  user_id: sessionStorage.getItem('user_id')
-}})
+let connectSocket = function({userId, userToken, roomToken}) {
+  let socket = new Socket("/socket", {params: {
+    user_token: userToken,
+    user_id: userId
+  }})
 
-let connectSocket = function(roomToken) {
   socket.connect()
+
+  console.log("Connecting to room: " + roomToken)
 
   let channel = socket.channel("game", {room_token: roomToken})
 

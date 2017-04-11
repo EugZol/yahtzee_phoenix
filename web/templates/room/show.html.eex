@@ -61,15 +61,15 @@
 </h1>
 <%= if @conn.assigns[:current_user] do %>
   <script>
-    sessionStorage.setItem('user_id', '<%= @conn.assigns.current_user.id %>')
-    sessionStorage.setItem('user_token', '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>')
-    window.roomToken = "<%= @conn.assigns.room.token %>"
-    require("web/static/js/socket").default(window.roomToken)
+    window.authData = {
+      userId: '<%= @conn.assigns.current_user.id %>',
+      userToken: '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>',
+      roomToken: '<%= @conn.assigns.room.token %>'
+    }
+    require("web/static/js/socket").default(window.authData)
   </script>
 <% else %>
   <script>
-    sessionStorage.removeItem('user_id')
-    sessionStorage.removeItem('user_token')
-    window.roomToken = nil
+    window.authData = {}
   </script>
 <% end %>
