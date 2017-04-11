@@ -10,18 +10,18 @@ defmodule YahtzeePhoenix.ClientSupervisor do
   end
 
   def spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid}) do
-    case find_client(user_id) do
+    case find_client(room_pid, user_id) do
       :undefined ->
-        Supervisor.start_child(__MODULE__, [%{user_id: user_id, user_name: user_name, room_pid: room_pid}, via_tuple(user_id)])
+        Supervisor.start_child(__MODULE__, [%{user_id: user_id, user_name: user_name, room_pid: room_pid}, via_tuple(room_pid, user_id)])
       pid -> {:ok, pid}
     end
   end
 
-  defp via_tuple(user_id) do
-    {:via, :gproc, {:n, :l, {:client, user_id}}}
+  defp via_tuple(room_pid, user_id) do
+    {:via, :gproc, {:n, :l, [client: user_id, room: room_pid]}}
   end
 
-  defp find_client(user_id) do
-    :gproc.where({:n, :l, {:client, user_id}})
+  defp find_client(room_pid, user_id) do
+    :gproc.where({:n, :l, [client: user_id, room: room_pid]})
   end
 end
