@@ -10,158 +10,160 @@ let socket = new Socket("/socket", {params: {
   user_id: sessionStorage.getItem('user_id')
 }})
 
-socket.connect()
+let connectSocket = function(roomToken) {
+  socket.connect()
 
-let channel = socket.channel("game", {})
+  let channel = socket.channel("game", {room_token: roomToken})
 
-let beginGameButton    = $('#begin_game')
-let rerollDiceButton   = $('#reroll_dice')
-let registerCombinationsButtons = $('.register_combination')
+  let beginGameButton    = $('#begin_game')
+  let rerollDiceButton   = $('#reroll_dice')
+  let registerCombinationsButtons = $('.register_combination')
 
-beginGameButton.on('click', event => {
-  channel.push('begin_game')
-})
-
-rerollDiceButton.on('click', event => {
-  let to_reroll = [0, 1, 2, 3, 4].filter(i => {
-    return $('#die-' + i + '-input').prop("checked")
+  beginGameButton.on('click', event => {
+    channel.push('begin_game')
   })
-  channel.push('reroll_dice', to_reroll)
-})
 
-registerCombinationsButtons.on('click', event => {
-  channel.push('register_combination', $(event.target).data('combination'))
-})
+  rerollDiceButton.on('click', event => {
+    let to_reroll = [0, 1, 2, 3, 4].filter(i => {
+      return $('#die-' + i + '-input').prop("checked")
+    })
+    channel.push('reroll_dice', to_reroll)
+  })
 
-channel.on('game_state', payload => {
-  console.log("Received game state: ")
-  console.log(payload)
+  registerCombinationsButtons.on('click', event => {
+    channel.push('register_combination', $(event.target).data('combination'))
+  })
 
-  renderGameState(payload)
+  channel.on('game_state', payload => {
+    console.log("Received game state: ")
+    console.log(payload)
 
-})
+    renderGameState(payload)
 
-channel.on('error', ({message}) => {
-  $('.alert-danger').text(message)
-})
+  })
 
-channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
-  .receive("error", resp => { console.log("Unable to join", resp) })
+  channel.on('error', ({message}) => {
+    $('.alert-danger').text(message)
+  })
 
-export default socket
+  channel.join()
+    .receive("ok", resp => { console.log("Joined successfully", resp) })
+    .receive("error", resp => { console.log("Unable to join", resp) })
 
-// Payload example: {
-//   game_started: ...
-//   current_player_id: ...
-//   players: [{
-//     id:
-//     name:
-//     game_state: {
-//       current_round: {
-//         throws_left:
-//         dice:
-//       },
-//       upper_bonus: 0,
-//       total: 0
-//       ones: ...
-//     }
-//   }]
-// }
-function renderGameState(payload) {
-  payload.players.forEach((player) => {
-    let selector = ".score-player-names .user_" + player['id'];
-    if ($(selector).length == 0) {
-      addPlayer(player)
-      $(selector).html(player['name']);
-    }
+  // Payload example: {
+  //   game_started: ...
+  //   current_player_id: ...
+  //   players: [{
+  //     id:
+  //     name:
+  //     game_state: {
+  //       current_round: {
+  //         throws_left:
+  //         dice:
+  //       },
+  //       upper_bonus: 0,
+  //       total: 0
+  //       ones: ...
+  //     }
+  //   }]
+  // }
+  function renderGameState(payload) {
+    payload.players.forEach((player) => {
+      let selector = ".score-player-names .user_" + player['id'];
+      if ($(selector).length == 0) {
+        addPlayer(player)
+        $(selector).html(player['name']);
+      }
+
+      if (payload['game_started']) {
+        renderPlayerScore(player)
+      }
+    })
+
+    showControls(payload)
 
     if (payload['game_started']) {
-      renderPlayerScore(player)
-    }
-  })
-
-  showControls(payload)
-
-  if (payload['game_started']) {
-    renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
-    beginGameButton.hide()
-  } else {
-    rerollDiceButton.hide()
-    registerCombinationsButtons.hide()
-    hideDice()
-  }
-}
-
-function renderPlayerScore(player) {
-  let score = $(Object.keys(player['game_state']))
-    .not(["current_round", "game_over"]).get()
-
-  for (let key of score) {
-    $(".score-" + key + " .user_" + player['id']).text(player['game_state'][key])
-  }
-}
-
-function renderDice(dice) {
-  resetDice()
-  showDice()
-
-  dice.forEach((face, i) => {
-    $("#die-" + i).addClass("die-face-" + face)
-  })
-}
-
-function resetDice() {
-  for (let i of [1, 2, 3, 4, 5, 6]) {
-    $('.die-face').removeClass('die-face-' + i)
-  }
-
-  for (let i of [0, 1, 2, 3, 4]) {
-    $('#die-' + i + '-input').prop("checked", false)
-  }
-}
-
-function hideDice() {
-  $('.die-face').hide()
-}
-
-function showDice() {
-  $('.die-face').show()
-}
-
-function myTurn(payload) {
-  return payload['current_player_id'].toString() == sessionStorage.getItem('user_id')
-}
-
-function currentPlayer(payload) {
-  let id = payload["current_player_id"]
-
-  return $.grep(payload["players"], function(player) {
-    return player['id'] == id
-  })[0]
-}
-
-function showControls(payload) {
-  if (payload['game_started'] && myTurn(payload)) {
-    registerCombinationsButtons.show()
-
-    let currentRound = currentPlayer(payload)['game_state']['current_round']
-
-    if (currentRound['throws_left'] == 0) {
-      rerollDiceButton.hide()
+      renderDice(currentPlayer(payload)["game_state"]["current_round"]["dice"])
+      beginGameButton.hide()
     } else {
-      rerollDiceButton.show()
+      rerollDiceButton.hide()
+      registerCombinationsButtons.hide()
+      hideDice()
     }
-  } else {
-    rerollDiceButton.hide()
-    registerCombinationsButtons.hide()
+  }
+
+  function renderPlayerScore(player) {
+    let score = $(Object.keys(player['game_state']))
+      .not(["current_round", "game_over"]).get()
+
+    for (let key of score) {
+      $(".score-" + key + " .user_" + player['id']).text(player['game_state'][key])
+    }
+  }
+
+  function renderDice(dice) {
+    resetDice()
+    showDice()
+
+    dice.forEach((face, i) => {
+      $("#die-" + i).addClass("die-face-" + face)
+    })
+  }
+
+  function resetDice() {
+    for (let i of [1, 2, 3, 4, 5, 6]) {
+      $('.die-face').removeClass('die-face-' + i)
+    }
+
+    for (let i of [0, 1, 2, 3, 4]) {
+      $('#die-' + i + '-input').prop("checked", false)
+    }
+  }
+
+  function hideDice() {
+    $('.die-face').hide()
+  }
+
+  function showDice() {
+    $('.die-face').show()
+  }
+
+  function myTurn(payload) {
+    return payload['current_player_id'].toString() == sessionStorage.getItem('user_id')
+  }
+
+  function currentPlayer(payload) {
+    let id = payload["current_player_id"]
+
+    return $.grep(payload["players"], function(player) {
+      return player['id'] == id
+    })[0]
+  }
+
+  function showControls(payload) {
+    if (payload['game_started'] && myTurn(payload)) {
+      registerCombinationsButtons.show()
+
+      let currentRound = currentPlayer(payload)['game_state']['current_round']
+
+      if (currentRound['throws_left'] == 0) {
+        rerollDiceButton.hide()
+      } else {
+        rerollDiceButton.show()
+      }
+    } else {
+      rerollDiceButton.hide()
+      registerCombinationsButtons.hide()
+    }
+  }
+
+  function addPlayer(player) {
+    var td = "<td class='player user_" + player['id'] + "'></td>"
+    var th = "<th class='player user_" + player['id'] + "'></th>"
+
+    $('th.player:nth-child(2)').before(th)
+    $('td.player:nth-child(2)').before(td)
   }
 }
 
-function addPlayer(player) {
-  var td = "<td class='player user_" + player['id'] + "'></td>"
-  var th = "<th class='player user_" + player['id'] + "'></th>"
-
-  $('th.player:nth-child(2)').before(th)
-  $('td.player:nth-child(2)').before(td)
-}
+export default connectSocket

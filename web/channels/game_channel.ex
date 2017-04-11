@@ -2,26 +2,37 @@ defmodule YahtzeePhoenix.GameChannel do
   use YahtzeePhoenix.Web, :channel
 
   alias YahtzeePhoenix.User
+  alias YahtzeePhoenix.Room
 
-  def join("game", %{}, socket) do
+  def join("game", %{"room_token" => room_token}, socket) do
     user_id = socket.assigns.user_id
-    {:ok, client_pid} = start_or_find_client(%{
-      user_token: socket.assigns.user_token,
-      user_id: user_id,
-      user_name: Repo.get!(User, user_id).name
-    })
-    send self(), :broadcast_game_state
-    {:ok, assign(socket, :client_pid, client_pid)}
+    case Repo.get_by(Room, token: room_token) do
+      %Room{id: room_id} ->
+        {:ok, room_pid} = Yahtzee.RoomSupervisor.spawn_or_find_room(room_id)
+        {:ok, client_pid} = start_or_find_client(%{
+          user_token: socket.assigns.user_token,
+          user_id: user_id,
+          user_name: Repo.get!(User, user_id).name,
+          room_pid: room_pid
+        })
+        send self(), :broadcast_game_state
+        socket =
+          socket
+          |> assign(:client_pid, client_pid)
+          |> assign(:room_pid, room_pid)
+        {:ok, socket}
+      nil -> {:error, "room is not found"}
+    end
   end
 
   def handle_info(:broadcast_game_state, socket) do
-    YahtzeePhoenix.Client.broadcast_game_state(Yahtzee.Servers.Room)
+    YahtzeePhoenix.Client.broadcast_game_state!(socket.assigns.client_pid)
     {:noreply, socket}
   end
 
   def handle_in("begin_game", _, socket) do
     try do
-      Yahtzee.Servers.Room.begin_game!
+      Yahtzee.Servers.Room.begin_game!(socket.assigns.room_pid)
     rescue
       _ -> push socket, "error", %{message: "Error beginning the game"}
     end
@@ -46,9 +57,9 @@ defmodule YahtzeePhoenix.GameChannel do
     end
   end
 
-  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name}) do
+  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name, room_pid: room_pid}) do
     if YahtzeePhoenix.User.validate_token(user_id, user_token) do
-      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name})
+      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid})
     else
       :error
     end

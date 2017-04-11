@@ -17,7 +17,8 @@ defmodule YahtzeePhoenix.Router do
   scope "/", YahtzeePhoenix do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", RoomController, :index
+    resources "/rooms", RoomController, only: [:show, :create]
     resources "/users", UserController
     resources "/session", SessionController, singleton: true, only: [:new, :create, :delete]
   end

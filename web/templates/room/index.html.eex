@@ -1,0 +1,26 @@
+<h2>Listing rooms</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Winner</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for room <- @rooms do %>
+    <tr>
+      <td><%= room.token %></td>
+      <td><%= room.winner_id %></td>
+
+      <td class="text-right">
+        <%= link "Show", to: room_path(@conn, :show, room), class: "btn btn-default btn-xs" %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<%= link "Create room", to: room_path(@conn, :create), method: "post" %>

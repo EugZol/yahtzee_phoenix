@@ -1,0 +1,75 @@
+<%= if @conn.assigns[:current_user] do %>
+  <div class='row'>
+    <div class="col-xs-8">
+      <table class="table table-condensed" style="margin-top: 0">
+        <thead>
+          <%# Player names %>
+          <tr class="score-player-names">
+            <th>Player</th>
+            <th class="player user_<%= @conn.assigns.current_user.id%>">
+              <%= @conn.assigns.current_user.name %>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for {symbol, {_, label}} <- Yahtzee.Core.Combinations.combinations do %>
+            <tr class="score-<%= symbol %>">
+              <td><%= label %></td>
+              <td class="player user_<%= @conn.assigns.current_user.id %>">
+                <button data-combination='<%= symbol %>'
+                  class="register_combination btn btn-xs">+</button>
+              </td>
+            </tr>
+          <%= end %>
+        </tbody>
+        <tbody>
+          <tr class="score-upper_bonus">
+            <td>Upper Bonus</td>
+            <td class="player user_<%= @conn.assigns.current_user.id %>"></td>
+          </tr>
+          <tr class="score-total">
+            <td>Total</td>
+            <td class="player user_<%= @conn.assigns.current_user.id %>"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="col-xs-4">
+      <div class="dice">
+        <div class="buffer-top">
+          <button id='begin_game' class='btn btn-primary'>Begin game</button>
+        </div>
+
+        <%= for index <- (0..4) do %>
+          <div class="die buffer-top">
+            <div class="die-check">
+              <input type="checkbox" name="die-<%= index %>" id="die-<%= index %>-input" value="" />
+              <label class="die-face" id="die-<%= index %>" for="die-<%= index %>-input"></label>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="buffer-top">
+          <button id='reroll_dice' class='btn btn-primary btn-sm'>Reroll dice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+<h1>
+</h1>
+<%= if @conn.assigns[:current_user] do %>
+  <script>
+    sessionStorage.setItem('user_id', '<%= @conn.assigns.current_user.id %>')
+    sessionStorage.setItem('user_token', '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>')
+    window.roomToken = "<%= @conn.assigns.room.token %>"
+    require("web/static/js/socket").default(window.roomToken)
+  </script>
+<% else %>
+  <script>
+    sessionStorage.removeItem('user_id')
+    sessionStorage.removeItem('user_token')
+    window.roomToken = nil
+  </script>
+<% end %>

@@ -41,22 +41,11 @@
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 
+      <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+
       <main role="main">
         <%= render @view_module, @view_template, assigns %>
       </main>
-
     </div>
-    <%= if @conn.assigns[:current_user] do %>
-      <script>
-        sessionStorage.setItem('user_id', '<%= @conn.assigns.current_user.id %>')
-        sessionStorage.setItem('user_token', '<%= YahtzeePhoenix.User.generate_token(@conn.assigns.current_user) %>')
-      </script>
-      <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
-    <% else %>
-      <script>
-        sessionStorage.removeItem('user_id')
-        sessionStorage.removeItem('user_token')
-      </script>
-    <% end %>
   </body>
 </html>
