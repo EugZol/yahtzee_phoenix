@@ -6,7 +6,7 @@ defmodule YahtzeePhoenix.ClientSupervisor do
   end
 
   def init(_) do
-    supervise([worker(YahtzeePhoenix.Client, [])], strategy: :simple_one_for_one)
+    supervise([worker(YahtzeePhoenix.Client, [], restart: :transient)], strategy: :simple_one_for_one)
   end
 
   def spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
