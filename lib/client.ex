@@ -66,9 +66,12 @@ defmodule YahtzeePhoenix.Client do
     YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
 
     if this_process_is_first_player?(room_state) do
-      winner_id = Enum.max_by(players, fn(player) -> player[:game_state][:total] end)[:id]
+      winner_id =
+        players
+        |> Enum.max_by(fn(player) -> player[:game_state][:total] end)
+        |> Map.fetch!(:id)
 
-      Repo.update(Room.game_over_changeset(Repo.get!(Room, room_id), winner_id, result))
+      Repo.update!(Room.game_over_changeset(Repo.get!(Room, room_id), winner_id, result))
     end
 
     {:stop, :normal, state}
