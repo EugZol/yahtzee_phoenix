@@ -41,7 +41,6 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     console.log(payload)
 
     renderGameState(payload)
-
   })
 
   channel.on('error', ({message}) => {
@@ -91,6 +90,9 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
       let player = winningPlayer(payload)
 
       highlightPlayerTotal(player['id'])
+
+      $('.rooms-show-div').removeClass('col-xs-8')
+      $('.rooms-show-div').addClass('col-xs-12')
     } else {
       let player = currentPlayer(payload)
 

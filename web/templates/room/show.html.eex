@@ -1,12 +1,12 @@
 <%= if @conn.assigns[:current_user] do %>
   <div class='row'>
-    <div class="col-xs-8">
+    <div class="col-xs-8 rooms-show-div">
       <table class="table table-condensed" style="margin-top: 0">
         <thead>
           <%# Player names %>
           <tr class="score-player-names">
             <th>Player</th>
-            <th class="player user_<%= @conn.assigns.current_user.id%>">
+            <th class="player me user_<%= @conn.assigns.current_user.id%>">
               <%= @conn.assigns.current_user.name %>
             </th>
           </tr>
