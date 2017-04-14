@@ -7,6 +7,9 @@ defmodule YahtzeePhoenix.GameChannel do
   def join("game:" <> room_id, %{"room_token" => room_token}, socket) do
     user_id = socket.assigns.user_id
     case Repo.get_by(Room, token: room_token, id: room_id) do
+      %Room{state: room_state = %{"game_over" => true}} ->
+        send self(), {:broadcast_game_results, room_state}
+        {:ok, socket}
       %Room{} ->
         {:ok, room_pid} = Yahtzee.RoomSupervisor.spawn_or_find_room(room_id)
         {:ok, client_pid} = start_or_find_client(%{
@@ -31,6 +34,12 @@ defmodule YahtzeePhoenix.GameChannel do
     YahtzeePhoenix.Client.broadcast_game_state!(socket.assigns.client_pid)
 
     {:noreply, socket}
+  end
+
+  def handle_info({:broadcast_game_results, room_state}, socket) do
+    push socket, "game_state", room_state
+
+    {:stop, :normal, socket}
   end
 
   def handle_in("begin_game", _, socket) do

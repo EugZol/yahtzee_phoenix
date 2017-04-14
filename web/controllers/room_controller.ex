@@ -9,7 +9,7 @@ defmodule YahtzeePhoenix.RoomController do
   end
 
   def create(conn, _params) do
-    changeset = Room.create
+    changeset = Room.create_changeset
 
     case Repo.insert(changeset) do
       {:ok, room} ->

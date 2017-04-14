@@ -5,6 +5,7 @@ defmodule YahtzeePhoenix.Repo.Migrations.CreateRoom do
     create table(:rooms) do
       add :token, :string
       add :winner_id, references(:users)
+      add :state, :map
 
       timestamps()
     end

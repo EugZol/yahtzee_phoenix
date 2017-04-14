@@ -8,14 +8,20 @@ defmodule YahtzeePhoenix.Room do
   schema "rooms" do
     field :token, :string
     field :winner_id, :integer
+    field :state, :map
 
     timestamps()
   end
 
-  def create do
+  def create_changeset do
     %__MODULE__{}
-    |> cast(%{}, [:token, :winner_id])
+    |> cast(%{}, [:token])
     |> generate_token
+  end
+
+  def game_over_changeset(room, winner_id, state) do
+    room
+    |> cast(%{winner_id: winner_id, state: state}, [:winner_id, :state])
   end
 
   defp generate_token(changeset) do
