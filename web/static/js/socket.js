@@ -84,6 +84,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
     if (payload['game_over']) {
       rerollDiceButton.hide()
+      beginGameButton.hide()
       registerCombinationsButtons.hide()
       hideDice()
 
@@ -201,8 +202,8 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
   }
 
   function highlightPlayer(id) {
-    $('.score-player-names .player').removeClass('text-primary')
-    $('.score-player-names .user_' + id).addClass('text-primary')
+    $('.score-player-names .player').removeClass('text-success')
+    $('.score-player-names .user_' + id).addClass('text-success')
   }
 
   function highlightPlayerTotal(id) {

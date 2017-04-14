@@ -51,7 +51,7 @@ defmodule YahtzeePhoenix.Client do
     {:noreply, new_state}
   end
 
-  def handle_cast({:game_over, room_state = %{players: players}}, state = %{room_id: room_id, user_id: user_id}) do
+  def handle_cast({:game_over, room_state = %{players: players}}, state = %{room_id: room_id}) do
     players =
       players
       |> Enum.map(fn(player) -> player[:user] |> Map.put(:game_state, player[:game_state]) end)
@@ -66,7 +66,9 @@ defmodule YahtzeePhoenix.Client do
     YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
 
     if this_process_is_first_player?(room_state) do
-      Repo.update(Room.game_over_changeset(Repo.get!(Room, room_id), user_id, result))
+      winner_id = Enum.max_by(players, fn(player) -> player[:game_state][:total] end)[:id]
+
+      Repo.update(Room.game_over_changeset(Repo.get!(Room, room_id), winner_id, result))
     end
 
     {:stop, :normal, state}
