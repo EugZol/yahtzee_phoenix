@@ -125,7 +125,7 @@ defmodule YahtzeePhoenix.Client do
         %{
           game_started: game_started,
           players: players,
-          current_player_id: Enum.at(players, current_player_number - 1)[:id]
+          current_player_id: Enum.at(players, current_player_number)[:id]
         }
       else
         %{
