@@ -28,9 +28,9 @@ defmodule YahtzeePhoenix.Client do
   # Server API
 
   def init(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
-    player_pid = Yahtzee.Servers.Room.register_join!(room_pid)
+    player_pid = Yahtzee.Servers.Room.register_join!(room_pid, %{id: user_id, name: user_name})
 
-    {:ok, %{player_pid: player_pid, user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}}
+    {:ok, %{player_pid: player_pid, room_pid: room_pid, room_id: room_id}}
   end
 
   def handle_call(:game_state, _, state = %{player_pid: player_pid}) do
@@ -54,6 +54,29 @@ defmodule YahtzeePhoenix.Client do
     broadcast_game_state!(self())
     new_state = Map.put(state, :in_ask_combination, true)
     {:noreply, new_state}
+  end
+
+  def handle_cast({:game_over, %{players: players}}, state = %{room_id: room_id}) do
+    game_states =
+      players
+      |> Enum.map(fn %{player_pid: player_pid} -> Yahtzee.Core.Player.game_state(player_pid) end)
+
+    players =
+      players
+      |> Enum.map(fn(player) -> player[:user] end)
+      |> Enum.zip(game_states)
+      |> Enum.map(fn {user_data, game_state} -> Map.put(user_data, :game_state, game_state) end)
+
+    result =
+      %{
+        game_started: true,
+        game_over: true,
+        players: players
+      }
+
+    YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
+
+    {:stop, :normal, state}
   end
 
   # From Channel
@@ -80,29 +103,20 @@ defmodule YahtzeePhoenix.Client do
     end
   end
 
-  def handle_cast(:broadcast_game_state, state = %{room_pid: room_pid, user_id: user_id, user_name: user_name, room_id: room_id}) do
+  def handle_cast(:broadcast_game_state, state = %{room_pid: room_pid, room_id: room_id}) do
     %{
-      player_pids: player_pids,
+      players: players,
       current_player_number: current_player_number,
       game_started: game_started
-    } = Yahtzee.Servers.Room.state(room_pid)
+    } = Yahtzee.Servers.Room.full_game_state(room_pid)
 
     game_states =
-      player_pids
-      |> Enum.map(fn(player_pid) -> Yahtzee.Core.Player.game_state(player_pid) end)
-
-    extract_user_data_from_client = fn(client_pid) ->
-      if self() == client_pid do
-        %{id: user_id, name: user_name}
-      else
-        user_data(client_pid)
-      end
-    end
+      players
+      |> Enum.map(fn %{player_pid: player_pid} -> Yahtzee.Core.Player.game_state(player_pid) end)
 
     players =
-      player_pids
-      |> Enum.map(fn(player_pid) -> Yahtzee.Core.Player.client_pid(player_pid) end)
-      |> Enum.map(extract_user_data_from_client)
+      players
+      |> Enum.map(fn(player) -> player[:user] end)
       |> Enum.zip(game_states)
       |> Enum.map(fn {user_data, game_state} -> Map.put(user_data, :game_state, game_state) end)
 
