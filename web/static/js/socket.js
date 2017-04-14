@@ -83,18 +83,28 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
       }
     })
 
-    let player = currentPlayer(payload)
-
-    showControls(payload)
-
-    if (payload['game_started']) {
-      highlightPlayer(player.id)
-      renderDice(player["game_state"]["current_round"]["dice"])
-      beginGameButton.hide()
-    } else {
+    if (payload['game_over']) {
       rerollDiceButton.hide()
       registerCombinationsButtons.hide()
       hideDice()
+
+      let player = winningPlayer(payload)
+
+      highlightPlayerTotal(player['id'])
+    } else {
+      let player = currentPlayer(payload)
+
+      showControls(payload)
+
+      if (payload['game_started']) {
+        highlightPlayer(player.id)
+        renderDice(player["game_state"]["current_round"]["dice"])
+        beginGameButton.hide()
+      } else {
+        rerollDiceButton.hide()
+        registerCombinationsButtons.hide()
+        hideDice()
+      }
     }
   }
 
@@ -146,6 +156,12 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     return payload['current_player_id'].toString() == userId
   }
 
+  function winningPlayer(payload) {
+    return payload['players'].reduce((acc, player) => {
+      return player['game_state']['total'] > acc['game_state']['total'] ? player : acc
+    })
+  }
+
   function currentPlayer(payload) {
     let id = payload["current_player_id"]
 
@@ -185,6 +201,10 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
   function highlightPlayer(id) {
     $('.score-player-names .player').removeClass('text-primary')
     $('.score-player-names .user_' + id).addClass('text-primary')
+  }
+
+  function highlightPlayerTotal(id) {
+    $('.score-total .user_' + id).addClass('text-bold')
   }
 }
 
