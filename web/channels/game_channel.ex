@@ -29,6 +29,7 @@ defmodule YahtzeePhoenix.GameChannel do
 
   def handle_info(:broadcast_game_state, socket) do
     YahtzeePhoenix.Client.broadcast_game_state!(socket.assigns.client_pid)
+
     {:noreply, socket}
   end
 
@@ -38,25 +39,31 @@ defmodule YahtzeePhoenix.GameChannel do
     rescue
       _ -> push socket, "error", %{message: "Error beginning the game"}
     end
+
     {:noreply, socket}
   end
 
   def handle_in("reroll_dice", [], socket) do
     push socket, "error", %{message: "Empty reroll is not possible"}
+
     {:noreply, socket}
   end
   def handle_in("reroll_dice", dice_to_reroll, socket) do
     case YahtzeePhoenix.Client.reroll_dice!(socket.assigns.client_pid, dice_to_reroll) do
-      :ok -> {:noreply, socket}
+      :ok -> nil
       {:error, message} -> push socket, "error", %{message: message}
     end
+
+    {:noreply, socket}
   end
 
   def handle_in("register_combination", combination, socket) do
     case YahtzeePhoenix.Client.register_combination!(socket.assigns.client_pid, combination) do
-      :ok -> {:noreply, socket}
+      :ok -> nil
       {:error, message} -> push socket, "error", %{message: message}
     end
+
+    {:noreply, socket}
   end
 
   def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
