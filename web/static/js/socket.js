@@ -11,6 +11,10 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     user_id: userId
   }})
 
+  socket.onError((err) => {
+    $('.alert-danger').text("Disconnected from server")
+  })
+
   socket.connect()
 
   console.log("Connecting to room: " + roomToken)
@@ -70,11 +74,11 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
   // }
   function renderGameState(payload) {
     payload.players.forEach((player) => {
-      let selector = ".score-player-names .user_" + player['id'];
+      let selector = ".score-player-names .user_" + player['id']
 
       if ($(selector).length == 0) {
         addPlayer(player)
-        $(selector).html(player['name']);
+        $(selector).html(player['name'])
       }
 
       if (payload['game_started']) {
