@@ -20,8 +20,8 @@ defmodule YahtzeePhoenix.Client do
     GenServer.call(client_pid, {:register_combination, combination})
   end
 
-  def broadcast_game_state!(client_pid) do
-    :ok = GenServer.cast(client_pid, :broadcast_game_state)
+  def broadcast_room_state!(client_pid) do
+    :ok = GenServer.cast(client_pid, :broadcast_room_state)
   end
 
   # Server API
@@ -32,42 +32,28 @@ defmodule YahtzeePhoenix.Client do
     {:ok, %{player_pid: player_pid, room_pid: room_pid, room_id: room_id, user_id: user_id}}
   end
 
-  def handle_call(:game_state, _, state = %{player_pid: player_pid}) do
-    game_state = Yahtzee.Core.Player.game_state(player_pid)
-    {:reply, game_state, state}
-  end
-
   # From Player
 
-  def handle_cast({:ask_which_dice_to_reroll, _game_state}, state) do
-    broadcast_game_state!(self())
+  def handle_cast({:ask_which_dice_to_reroll, _}, state) do
+    broadcast_room_state!(self())
     new_state = Map.put(state, :in_reroll, true)
     {:noreply, new_state}
   end
 
-  def handle_cast({:ask_combination, _game_state}, state) do
-    broadcast_game_state!(self())
+  def handle_cast({:ask_combination, _}, state) do
+    broadcast_room_state!(self())
     new_state = Map.put(state, :in_ask_combination, true)
     {:noreply, new_state}
   end
 
-  def handle_cast({:game_over, room_state = %{players: players}}, state = %{room_id: room_id}) do
-    players =
-      players
-      |> Enum.map(fn(player) -> player[:user] |> Map.put(:game_state, player[:game_state]) end)
+  def handle_cast({:game_over, room_state}, state = %{room_id: room_id}) do
+    result = add_user_data_to_room_state(room_state)
 
-    result =
-      %{
-        game_started: true,
-        game_over: true,
-        players: players
-      }
-
-    YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
+    YahtzeePhoenix.Endpoint.broadcast! "room:" <> room_id, "room_state", result
 
     if this_process_is_first_player?(room_state) do
       winner_id =
-        players
+        result[:players]
         |> Enum.max_by(fn(player) -> player[:game_state][:total] end)
         |> Map.fetch!(:id)
 
@@ -101,40 +87,34 @@ defmodule YahtzeePhoenix.Client do
     end
   end
 
-  def handle_cast(:broadcast_game_state, state = %{room_pid: room_pid, room_id: room_id}) do
-    %{
-      players: players,
-      current_player_number: current_player_number,
-      game_started: game_started
-    } = Yahtzee.Servers.Room.full_game_state(room_pid)
+  def handle_cast(:broadcast_room_state, state = %{room_pid: room_pid, room_id: room_id}) do
+    result = add_user_data_to_room_state(Yahtzee.Servers.Room.full_state(room_pid))
 
-    players =
-      players
-      |> Enum.map(fn(player) -> player[:user] |> Map.put(:game_state, player[:game_state]) end)
-
-    result =
-      if game_started do
-        %{
-          game_started: true,
-          game_over: false,
-          players: players,
-          current_player_id: Enum.at(players, current_player_number)[:id]
-        }
-      else
-        %{
-          game_started: false,
-          game_over: false,
-          players: players
-        }
-      end
-
-    YahtzeePhoenix.Endpoint.broadcast! "game:" <> room_id, "game_state", result
+    YahtzeePhoenix.Endpoint.broadcast! "room:" <> room_id, "room_state", result
 
     {:noreply, state}
   end
 
   defp can_register_combination?(state) do
     state[:in_reroll] || state[:in_ask_combination]
+  end
+
+  defp add_user_data_to_room_state(%{players: players, game_started: game_started, game_over: game_over, current_player_number: current_player_number}) do
+    players =
+      players
+      |> Enum.map(fn(player) -> player[:user] |> Map.put(:game_state, player[:game_state]) end)
+
+    result = %{
+      game_started: game_started,
+      game_over: game_over,
+      players: players,
+    }
+
+    if game_started && !game_over do
+      Map.put(result, :current_player_id, Enum.at(players, current_player_number)[:id])
+    else
+      result
+    end
   end
 
   defp this_process_is_first_player?(%{players: [%{client_pid: first_client_pid} | _]}) when first_client_pid == self(), do: true

@@ -19,7 +19,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   console.log("Connecting to room: " + roomToken)
 
-  let channel = socket.channel("game:" + roomId, {room_token: roomToken})
+  let channel = socket.channel("room:" + roomId, {room_token: roomToken})
 
   let beginGameButton    = $('#begin_game')
   let rerollDiceButton   = $('#reroll_dice')
@@ -40,7 +40,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     channel.push('register_combination', $(event.target).data('combination'))
   })
 
-  channel.on('game_state', payload => {
+  channel.on('room_state', payload => {
     console.log("Received game state: ")
     console.log(payload)
 
@@ -57,6 +57,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   // Payload example: {
   //   game_started: ...
+  //   game_over: ...
   //   current_player_id: ...
   //   players: [{
   //     id:

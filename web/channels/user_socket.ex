@@ -2,7 +2,7 @@ defmodule YahtzeePhoenix.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "game:*", YahtzeePhoenix.GameChannel
+  channel "room:*", YahtzeePhoenix.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,

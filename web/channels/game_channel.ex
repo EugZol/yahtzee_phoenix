@@ -4,7 +4,7 @@ defmodule YahtzeePhoenix.GameChannel do
   alias YahtzeePhoenix.User
   alias YahtzeePhoenix.Room
 
-  def join("game:" <> room_id, %{"room_token" => room_token}, socket) do
+  def join("room:" <> room_id, %{"room_token" => room_token}, socket) do
     user_id = socket.assigns.user_id
     case Repo.get_by(Room, token: room_token, id: room_id) do
       %Room{state: room_state = %{"game_over" => true}} ->
@@ -19,7 +19,7 @@ defmodule YahtzeePhoenix.GameChannel do
           room_pid: room_pid,
           room_id: room_id
         })
-        send self(), :broadcast_game_state
+        send self(), :broadcast_room_state
         socket =
           socket
           |> assign(:client_pid, client_pid)
@@ -30,14 +30,14 @@ defmodule YahtzeePhoenix.GameChannel do
     end
   end
 
-  def handle_info(:broadcast_game_state, socket) do
-    YahtzeePhoenix.Client.broadcast_game_state!(socket.assigns.client_pid)
+  def handle_info(:broadcast_room_state, socket) do
+    YahtzeePhoenix.Client.broadcast_room_state!(socket.assigns.client_pid)
 
     {:noreply, socket}
   end
 
   def handle_info({:broadcast_game_results, room_state}, socket) do
-    push socket, "game_state", room_state
+    push socket, "room_state", room_state
 
     {:stop, :normal, socket}
   end
