@@ -4,8 +4,19 @@ defmodule YahtzeePhoenix.RoomController do
   alias YahtzeePhoenix.Room
 
   def index(conn, _params) do
-    rooms = Repo.all(Room)
-    render(conn, "index.html", rooms: rooms)
+    finished_rooms =
+      Room
+      |> Room.finished
+      |> Room.with_winner
+      |> Repo.all
+
+    open_rooms =
+      Room
+      |> Room.open
+      |> Room.with_winner
+      |> Repo.all
+
+    render(conn, "index.html", finished_rooms: finished_rooms, open_rooms: open_rooms)
   end
 
   def create(conn, _params) do

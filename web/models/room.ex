@@ -7,8 +7,9 @@ defmodule YahtzeePhoenix.Room do
 
   schema "rooms" do
     field :token, :string
-    field :winner_id, :integer
     field :state, :map
+
+    belongs_to :winner, YahtzeePhoenix.User
 
     timestamps()
   end
@@ -22,6 +23,21 @@ defmodule YahtzeePhoenix.Room do
   def game_over_changeset(room, winner_id, state) do
     room
     |> cast(%{winner_id: winner_id, state: state}, [:winner_id, :state])
+  end
+
+  def with_winner(query) do
+    from r in query,
+      preload: :winner
+  end
+
+  def open(query) do
+    from r in query,
+      where: is_nil(r.winner_id)
+  end
+
+  def finished(query) do
+    from r in query,
+      where: not(is_nil(r.winner_id))
   end
 
   defp generate_token(changeset) do

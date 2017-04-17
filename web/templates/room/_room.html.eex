@@ -1,0 +1,7 @@
+<td><%= @room.token %></td>
+<%= unless @room.winner == nil do %>
+  <td><%= @room.winner.name %></td>
+<% end %>
+<td class="text-right">
+  <%= link "Show", to: room_path(@conn, :show, @room), class: "btn btn-default btn-xs" %>
+</td>

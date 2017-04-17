@@ -1,18 +1,18 @@
-<%= link "Create room", to: room_path(@conn, :create),
-  method: "post", class: 'btn btn-primary' %>
-
 <h3>Open rooms</h3>
 <table class="table">
   <thead>
-    <tr><th>Token</th><th>Winner</th><th></th></tr>
+    <tr><th>Token</th><th></th></tr>
   </thead>
 
   <tbody>
-    <%= for room <- @rooms do %>
+    <%= for room <- @open_rooms do %>
       <tr><%= render "_room.html", room: room, conn: @conn %></tr>
     <% end %>
   </tbody>
 </table>
+
+<%= link "Create room", to: room_path(@conn, :create),
+  method: "post", class: 'btn btn-primary' %>
 
 <h3>Finished rooms</h3>
 <table class="table">
@@ -21,7 +21,7 @@
   </thead>
 
   <tbody>
-    <%= for room <- @rooms do %>
+    <%= for room <- @finished_rooms do %>
       <tr><%= render "_room.html", room: room, conn: @conn %></tr>
     <% end %>
   </tbody>
