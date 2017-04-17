@@ -1,23 +1,5 @@
-<h2>Show user</h2>
+<h2><%= @user.name %></h2>
 
-<ul>
+<p><%= @user.email %></p>
 
-  <li>
-    <strong>Name:</strong>
-    <%= @user.name %>
-  </li>
-
-  <li>
-    <strong>Email:</strong>
-    <%= @user.email %>
-  </li>
-
-  <li>
-    <strong>Password:</strong>
-    <%= @user.password %>
-  </li>
-
-</ul>
-
-<%= link "Edit", to: user_path(@conn, :edit, @user) %>
-<%= link "Back", to: user_path(@conn, :index) %>
+<%= link "Edit", to: user_path(@conn, :edit, @user), class: 'btn btn-primary' %>

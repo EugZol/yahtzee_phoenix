@@ -25,7 +25,9 @@
             <div class="navbar-collapse">
               <%= if @conn.assigns[:current_user] do %>
                 <div class="navbar-text navbar-right">
-                  Welcome, <%= @conn.assigns.current_user.name %> |
+                  Welcome,
+                  <% user = @conn.assigns.current_user %>
+                  <%= link user.name, to: user_path(@conn, :show, user) %> |
                   <%= link "Logout", to: session_path(@conn, :delete), method: :delete %>
                 </div>
               <% else %>
