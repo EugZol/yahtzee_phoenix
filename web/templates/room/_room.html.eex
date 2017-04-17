@@ -1,5 +1,5 @@
 <td><%= @room.token %></td>
-<%= unless @room.winner == nil do %>
+<%= if @room.winner do %>
   <td><%= @room.winner.name %></td>
 <% end %>
 <td class="text-right">
