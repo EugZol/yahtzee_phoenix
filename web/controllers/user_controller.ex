@@ -2,6 +2,9 @@ defmodule YahtzeePhoenix.UserController do
   use YahtzeePhoenix.Web, :controller
 
   alias YahtzeePhoenix.User
+  alias YahtzeePhoenix.Plugs.EnsureResourceBelongsToCurrentUser
+
+  plug EnsureResourceBelongsToCurrentUser, (&__MODULE__.return_id/1) when action in [:edit, :update, :delete]
 
   def index(conn, _params) do
     users = Repo.all(User)
@@ -61,5 +64,9 @@ defmodule YahtzeePhoenix.UserController do
     conn
     |> put_flash(:info, "User deleted successfully.")
     |> redirect(to: user_path(conn, :index))
+  end
+
+  def return_id(conn) do
+    conn.params["id"]
   end
 end

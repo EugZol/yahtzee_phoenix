@@ -3,6 +3,7 @@ defmodule YahtzeePhoenix.User do
 
   alias YahtzeePhoenix.Repo
   alias YahtzeePhoenix.User
+  alias YahtzeePhoenix.Room
 
   schema "users" do
     field :name, :string
@@ -33,6 +34,12 @@ defmodule YahtzeePhoenix.User do
     else
       :error
     end
+  end
+
+  def score(user) do
+    from r in Room,
+      where: r.winner_id == ^user.id,
+      select: count(r.id)
   end
 
   defp hash_password(changeset) do

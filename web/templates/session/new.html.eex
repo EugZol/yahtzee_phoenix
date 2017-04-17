@@ -3,4 +3,4 @@
 <%= render "form.html", conn: @conn,
                         action: session_path(@conn, :create) %>
 
-<%= link "Back", to: '/' %>
+<%= link "New user", to: user_path(@conn, :new), class: 'btn btn-primary' %>

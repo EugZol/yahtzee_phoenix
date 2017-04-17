@@ -12,7 +12,7 @@ defmodule YahtzeePhoenix.SessionController do
       {:ok, user} ->
         conn
         |> put_session(:user_id, user.id)
-        |> put_flash(:info, "Session created successfully.")
+        |> put_flash(:info, "You were logged in")
         |> redirect(to: "/")
       :error ->
         conn
@@ -24,7 +24,7 @@ defmodule YahtzeePhoenix.SessionController do
   def delete(conn, _params) do
     conn
     |> clear_session
-    |> put_flash(:info, "Session deleted successfully.")
+    |> put_flash(:info, "You were logged out")
     |> redirect(to: "/")
   end
 end
