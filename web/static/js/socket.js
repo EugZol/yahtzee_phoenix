@@ -29,11 +29,24 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     channel.push('begin_game')
   })
 
-  rerollDiceButton.on('click', event => {
-    let to_reroll = [0, 1, 2, 3, 4].filter(i => {
+  let diceToReroll = function() {
+    return [0, 1, 2, 3, 4].filter(i => {
       return $('#die-' + i + '-input').prop("checked")
     })
-    channel.push('reroll_dice', to_reroll)
+  }
+
+  $('input[type=checkbox]').on('change', () => {
+    console.log(diceToReroll())
+    if (diceToReroll().length > 0) {
+      enableRerollDiceButton()
+    } else {
+      disableRerollDiceButton()
+    }
+  });
+
+  rerollDiceButton.on('click', event => {
+    let toReroll = diceToReroll()
+    channel.push('reroll_dice', toReroll)
   })
 
   registerCombinationsButtons.on('click', event => {
@@ -190,6 +203,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
       } else {
         enableDice()
         rerollDiceButton.show()
+        disableRerollDiceButton()
       }
     } else {
       rerollDiceButton.hide()
@@ -197,6 +211,18 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
       registerCombinationsButtons.hide()
     }
   }
+
+  function disableRerollDiceButton() {
+    rerollDiceButton.prop('disabled', true).addClass('disabled')
+  }
+
+  window.disableRerollDiceButton = disableRerollDiceButton
+
+  function enableRerollDiceButton() {
+    rerollDiceButton.prop('disabled', false).removeClass('disabled')
+  }
+
+  window.enableRerollDiceButton = enableRerollDiceButton
 
   function addPlayer(player) {
     var td = "<td class='player user_" + player['id'] + "'></td>"
