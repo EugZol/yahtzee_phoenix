@@ -13,7 +13,6 @@ defmodule YahtzeePhoenix.GameChannel do
       %Room{} ->
         {:ok, room_pid} = Yahtzee.RoomSupervisor.spawn_or_find_room(room_id)
         {:ok, client_pid} = start_or_find_client(%{
-          user_token: socket.assigns.user_token,
           user_id: user_id,
           user_name: Repo.get!(User, user_id).name,
           room_pid: room_pid,
@@ -75,11 +74,7 @@ defmodule YahtzeePhoenix.GameChannel do
     {:noreply, socket}
   end
 
-  def start_or_find_client(%{user_token: user_token, user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
-    if YahtzeePhoenix.User.validate_token(user_id, user_token) do
-      YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id})
-    else
-      :error
-    end
+  def start_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id}) do
+    YahtzeePhoenix.ClientSupervisor.spawn_or_find_client(%{user_id: user_id, user_name: user_name, room_pid: room_pid, room_id: room_id})
   end
 end

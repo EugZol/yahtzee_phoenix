@@ -7,8 +7,7 @@ import {Socket} from "phoenix"
 
 let connectSocket = function({userId, userToken, roomToken, roomId}) {
   let socket = new Socket("/socket", {params: {
-    user_token: userToken,
-    user_id: userId
+    user_token: userToken
   }})
 
   socket.onError((err) => {

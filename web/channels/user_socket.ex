@@ -21,11 +21,10 @@ defmodule YahtzeePhoenix.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(params, socket) do
-    socket =
-      socket
-      |> assign(:user_token, params["user_token"])
-      |> assign(:user_id, params["user_id"])
-    {:ok, socket}
+    case Phoenix.Token.verify(socket, "user", params["user_token"], max_age: 60) do
+      {:ok, user_id} -> {:ok, assign(socket, :user_id, user_id)}
+      {:error, _} -> {:error, "Access denied"}
+    end
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

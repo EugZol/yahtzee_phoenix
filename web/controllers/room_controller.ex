@@ -37,7 +37,8 @@ defmodule YahtzeePhoenix.RoomController do
         |> put_flash(:error, "Room not found")
         |> redirect(to: room_path(conn, :index))
       room = %Room{} ->
-        render(conn, "show.html", room: room)
+        conn
+        |> render("show.html", room: room)
     end
   end
 end
