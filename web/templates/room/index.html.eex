@@ -13,7 +13,7 @@
 <%= for room <- @rooms do %>
     <tr>
       <td><%= room.token %></td>
-      <td><%= room.winner_id %></td>
+      <td><%= room.winner.name %></td>
 
       <td class="text-right">
         <%= link "Show", to: room_path(@conn, :show, room), class: "btn btn-default btn-xs" %>
