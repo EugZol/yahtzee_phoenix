@@ -3,6 +3,7 @@ defmodule YahtzeePhoenix.UserSocket do
 
   ## Channels
   channel "room:*", YahtzeePhoenix.RoomChannel
+  channel "chat:*", YahtzeePhoenix.ChatChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,

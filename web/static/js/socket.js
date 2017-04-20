@@ -1,8 +1,3 @@
-// NOTE: The contents of this file will only be executed if
-// you uncomment its entry in "web/static/js/app.js".
-
-// To use Phoenix channels, the first step is to import Socket
-// and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix"
 
 let connectSocket = function({userId, userToken, roomToken, roomId}) {
@@ -16,16 +11,49 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   socket.connect()
 
-  console.log(`Connecting to room: ${roomToken}`)
+  console.log(`Connected to room: ${roomToken}`)
 
-  let channel = socket.channel(`room:${roomId}`, {room_token: roomToken})
+  // Chat
+
+  let chatChannel = socket.channel(`chat:${roomId}`, {room_token: roomToken})
+
+  let messageInput = $('.message-input')
+  let chatContent = $('.rooms-chat-div')
+
+  messageInput.keyup(function(e){
+    if (e.keyCode == 13 && messageInput.val() != ""){
+      e.preventDefault()
+      chatChannel.push('message', messageInput.val())
+      messageInput.val("")
+    }
+  })
+
+  chatChannel.on('message', ({name, text}) => {
+    let p = `<p><em>${sanitize(name)}</em>: ${sanitize(text)}`
+    chatContent.append(p)
+  })
+
+  chatChannel.join()
+    .receive("ok", resp => { console.log("Joined to chat successfully", resp) })
+    .receive("error", resp => {
+      console.log("Unable to join to chat", resp)
+      $('.alert-danger').text(resp["message"])
+    })
+
+  function sanitize(text) {
+    return $('<div/>').text(text).html()
+  }
+
+  // Game
+
+  let roomChannel = socket.channel(`room:${roomId}`, {room_token: roomToken})
 
   let beginGameButton    = $('#begin_game')
   let rerollDiceButton   = $('#reroll_dice')
   let registerCombinationsButtons = $('.register_combination')
 
   beginGameButton.on('click', event => {
-    channel.push('begin_game')
+    roomChannel.push('begin_game')
   })
 
   let diceToReroll = function() {
@@ -44,28 +72,28 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   rerollDiceButton.on('click', event => {
     let toReroll = diceToReroll()
-    channel.push('reroll_dice', toReroll)
+    roomChannel.push('reroll_dice', toReroll)
   })
 
   registerCombinationsButtons.on('click', event => {
-    channel.push('register_combination', $(event.target).data('combination'))
+    roomChannel.push('register_combination', $(event.target).data('combination'))
   })
 
-  channel.on('room_state', payload => {
+  roomChannel.on('room_state', payload => {
     console.log("Received game state: ")
     console.log(payload)
 
     renderGameState(payload)
   })
 
-  channel.on('error', ({message}) => {
+  roomChannel.on('error', ({message}) => {
     $('.alert-danger').text(message)
   })
 
-  channel.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
+  roomChannel.join()
+    .receive("ok", resp => { console.log("Joined to room successfully", resp) })
     .receive("error", resp => {
-      console.log("Unable to join", resp)
+      console.log("Unable to join to room", resp)
       $('.alert-danger').text(resp["message"])
       rerollDiceButton.hide()
       registerCombinationsButtons.hide()
@@ -180,8 +208,8 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     let selector = `.score-player-names .user_${player['id']}`
 
     if ($(selector).length == 0) {
-      var td = `<td class='player user_${player['id']}'></td>`
-      var th = `<th class='player user_${player['id']}'></th>`
+      let td = `<td class='player user_${player['id']}'></td>`
+      let th = `<th class='player user_${player['id']}'></th>`
 
       $('th.player:nth-child(2)').before(th)
       $('td.player:nth-child(2)').before(td)
