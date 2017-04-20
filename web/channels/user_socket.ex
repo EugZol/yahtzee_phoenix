@@ -2,7 +2,7 @@ defmodule YahtzeePhoenix.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "room:*", YahtzeePhoenix.GameChannel
+  channel "room:*", YahtzeePhoenix.RoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,
@@ -23,7 +23,7 @@ defmodule YahtzeePhoenix.UserSocket do
   def connect(params, socket) do
     case Phoenix.Token.verify(socket, "user", params["user_token"], max_age: 60) do
       {:ok, user_id} -> {:ok, assign(socket, :user_id, user_id)}
-      {:error, _} -> {:error, "Access denied"}
+      {:error, _} -> :error
     end
   end
 
