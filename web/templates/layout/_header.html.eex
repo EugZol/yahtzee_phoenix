@@ -1,0 +1,28 @@
+<header class="header">
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">Yatzy</a>
+      </div>
+
+      <ul class="nav navbar-nav">
+        <li><%= link "Rating", to: user_path(@conn, :index) %></li>
+      </ul>
+
+      <div class="navbar-collapse">
+        <%= if @conn.assigns[:current_user] do %>
+          <div class="navbar-text navbar-right">
+            Welcome,
+            <% user = @conn.assigns.current_user %>
+            <%= link user.name, to: user_path(@conn, :show, user) %> |
+            <%= link "Logout", to: session_path(@conn, :delete), method: :delete %>
+          </div>
+        <% else %>
+          <ul class="nav navbar-nav navbar-right">
+            <li><%= link "Login", to: session_path(@conn, :new) %></li>
+          </ul>
+        <% end %>
+      </div>
+    </div>
+  </nav>
+</header>
