@@ -64,7 +64,14 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   channel.join()
     .receive("ok", resp => { console.log("Joined successfully", resp) })
-    .receive("error", resp => { console.log("Unable to join", resp) })
+    .receive("error", resp => {
+      console.log("Unable to join", resp)
+      $('.alert-danger').text(resp["message"])
+      rerollDiceButton.hide()
+      registerCombinationsButtons.hide()
+      hideDice()
+      beginGameButton.hide()
+    })
 
   // Payload example: {
   //   game_started: ...
@@ -113,7 +120,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     $('.rooms-show-div').addClass('col-xs-12')
   }
 
-  function renderGamePending(payload) {
+  function renderGamePending(_payload) {
     rerollDiceButton.hide()
     registerCombinationsButtons.hide()
     hideDice()

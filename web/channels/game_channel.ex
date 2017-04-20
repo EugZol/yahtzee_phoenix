@@ -24,8 +24,7 @@ defmodule YahtzeePhoenix.GameChannel do
           |> assign(:client_pid, client_pid)
           |> assign(:room_pid, room_pid)
         {:ok, socket}
-      nil -> {:error, "room is not found"}
-      _ -> {:error, "access denied"}
+      _ -> {:error, %{message: "Unable to join"}}
     end
   end
 
