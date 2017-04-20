@@ -16,9 +16,9 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   socket.connect()
 
-  console.log("Connecting to room: " + roomToken)
+  console.log(`Connecting to room: ${roomToken}`)
 
-  let channel = socket.channel("room:" + roomId, {room_token: roomToken})
+  let channel = socket.channel(`room:${roomId}`, {room_token: roomToken})
 
   let beginGameButton    = $('#begin_game')
   let rerollDiceButton   = $('#reroll_dice')
@@ -30,12 +30,11 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   let diceToReroll = function() {
     return [0, 1, 2, 3, 4].filter(i => {
-      return $('#die-' + i + '-input').prop("checked")
+      return $(`#die-${i}-input`).prop('checked')
     })
   }
 
-  $('input[type=checkbox]').on('change', () => {
-    console.log(diceToReroll())
+  $("input[type=checkbox]").on('change', () => {
     if (diceToReroll().length > 0) {
       enableRerollDiceButton()
     } else {
@@ -86,54 +85,101 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
   //   }]
   // }
   function renderGameState(payload) {
-    payload.players.forEach((player) => {
-      let selector = ".score-player-names .user_" + player['id']
-
-      if ($(selector).length == 0) {
-        addPlayer(player)
-        $(selector).html(player['name'])
-      }
-
-      if (payload['game_started']) {
-        renderPlayerScore(player)
-      }
-    })
+    renderPlayers(payload)
 
     if (payload['game_over']) {
+      return renderGameOver(payload)
+    }
+
+    if (payload['game_started']) {
+      return renderGameProgress(payload)
+    }
+
+    renderGamePending(payload)
+  }
+
+  function renderGameOver(payload) {
+    rerollDiceButton.hide()
+    beginGameButton.hide()
+    registerCombinationsButtons.hide()
+    hideDice()
+
+    let player = winningPlayer(payload)
+
+    highlightPlayerTotal(player['id'])
+    highlightPlayer(null)
+
+    $('.rooms-show-div').removeClass('col-xs-8')
+    $('.rooms-show-div').addClass('col-xs-12')
+  }
+
+  function renderGamePending(payload) {
+    rerollDiceButton.hide()
+    registerCombinationsButtons.hide()
+    hideDice()
+  }
+
+  function renderGameProgress(payload) {
+    beginGameButton.hide()
+
+    let player = currentPlayer(payload)
+    highlightPlayer(player.id)
+    renderDice(player["game_state"]["current_round"]["dice"])
+
+    if (myTurn(payload)) {
+      return renderControlsForMyTurn(payload)
+    }
+
+    renderControlsForOtherPlayerTurn(payload)
+  }
+
+  function renderControlsForMyTurn(payload) {
+    registerCombinationsButtons.show()
+
+    let currentRound = currentPlayer(payload)['game_state']['current_round']
+
+    if (currentRound['throws_left'] == 0) {
+      disableDice()
       rerollDiceButton.hide()
-      beginGameButton.hide()
-      registerCombinationsButtons.hide()
-      hideDice()
-
-      let player = winningPlayer(payload)
-
-      highlightPlayerTotal(player['id'])
-
-      $('.rooms-show-div').removeClass('col-xs-8')
-      $('.rooms-show-div').addClass('col-xs-12')
     } else {
-      let player = currentPlayer(payload)
-
-      showControls(payload)
-
-      if (payload['game_started']) {
-        highlightPlayer(player.id)
-        renderDice(player["game_state"]["current_round"]["dice"])
-        beginGameButton.hide()
-      } else {
-        rerollDiceButton.hide()
-        registerCombinationsButtons.hide()
-        hideDice()
-      }
+      enableDice()
+      rerollDiceButton.show()
+      disableRerollDiceButton()
     }
   }
 
-  function renderPlayerScore(player) {
-    let score = $(Object.keys(player['game_state']))
-      .not(["current_round", "game_over"]).get()
+  function renderControlsForOtherPlayerTurn(_payload) {
+    rerollDiceButton.hide()
+    disableDice()
+    registerCombinationsButtons.hide()
+  }
 
-    for (let key of score) {
-      $(".score-" + key + " .user_" + player['id']).text(player['game_state'][key])
+  function renderPlayers(payload) {
+    payload.players.forEach((player) => {
+      addPlayer(player)
+
+      if (payload['game_started']) {
+        let score = $(Object.keys(player['game_state']))
+          .not(["current_round", "game_over"]).get()
+
+        for (let key of score) {
+          $(`.score-${key} .user_${player['id']}`).text(player['game_state'][key])
+        }
+      }
+    })
+  }
+
+  function addPlayer(player) {
+    let selector = `.score-player-names .user_${player['id']}`
+
+    if ($(selector).length == 0) {
+      var td = `<td class='player user_${player['id']}'></td>`
+      var th = `<th class='player user_${player['id']}'></th>`
+
+      $('th.player:nth-child(2)').before(th)
+      $('td.player:nth-child(2)').before(td)
+
+      $(selector).html(player['name'])
     }
   }
 
@@ -142,17 +188,17 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     showDice()
 
     dice.forEach((face, i) => {
-      $("#die-" + i).addClass("die-face-" + face)
+      $(`#die-${i}`).addClass(`die-face-${face}`)
     })
   }
 
   function resetDice() {
     for (let i of [1, 2, 3, 4, 5, 6]) {
-      $('.die-face').removeClass('die-face-' + i)
+      $('.die-face').removeClass(`die-face-${i}`)
     }
 
     for (let i of [0, 1, 2, 3, 4]) {
-      $('#die-' + i + '-input').prop("checked", false)
+      $(`#die-${i}-input`).prop("checked", false)
     }
   }
 
@@ -190,54 +236,24 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
     })[0]
   }
 
-  function showControls(payload) {
-    if (payload['game_started'] && myTurn(payload)) {
-      registerCombinationsButtons.show()
-
-      let currentRound = currentPlayer(payload)['game_state']['current_round']
-
-      if (currentRound['throws_left'] == 0) {
-        disableDice()
-        rerollDiceButton.hide()
-      } else {
-        enableDice()
-        rerollDiceButton.show()
-        disableRerollDiceButton()
-      }
-    } else {
-      rerollDiceButton.hide()
-      disableDice()
-      registerCombinationsButtons.hide()
-    }
-  }
-
   function disableRerollDiceButton() {
     rerollDiceButton.prop('disabled', true).addClass('disabled')
   }
-
-  window.disableRerollDiceButton = disableRerollDiceButton
 
   function enableRerollDiceButton() {
     rerollDiceButton.prop('disabled', false).removeClass('disabled')
   }
 
-  window.enableRerollDiceButton = enableRerollDiceButton
-
-  function addPlayer(player) {
-    var td = "<td class='player user_" + player['id'] + "'></td>"
-    var th = "<th class='player user_" + player['id'] + "'></th>"
-
-    $('th.player:nth-child(2)').before(th)
-    $('td.player:nth-child(2)').before(td)
-  }
-
   function highlightPlayer(id) {
     $('.score-player-names .player').removeClass('text-success')
-    $('.score-player-names .user_' + id).addClass('text-success')
+
+    if (id !== null) {
+      $(`.score-player-names .user_${id}`).addClass('text-success')
+    }
   }
 
   function highlightPlayerTotal(id) {
-    $('.score-total .user_' + id).addClass('text-bold')
+    $(`.score-total .user_${id}`).addClass('text-bold')
   }
 }
 
