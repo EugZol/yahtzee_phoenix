@@ -57,9 +57,11 @@
     </div>
 
     <div class="col-xs-3">
-      <div style="height: 30em; overflow-y: scroll" class="rooms-chat-div">
+      <div class="buffer-top">
+        <input class="form-control message-input buffer-bottom">
+        <div class="rooms-chat-div">
+        </div>
       </div>
-      <input class="form-control message-input" style="margin-top: 15px">
     </div>
   </div>
 <% end %>

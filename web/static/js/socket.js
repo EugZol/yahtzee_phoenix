@@ -30,7 +30,7 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
 
   chatChannel.on('message', ({name, text}) => {
     let p = `<p><em>${sanitize(name)}</em>: ${sanitize(text)}`
-    chatContent.append(p)
+    chatContent.prepend(p)
   })
 
   chatChannel.join()
