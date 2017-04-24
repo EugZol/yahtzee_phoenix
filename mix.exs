@@ -19,7 +19,7 @@ defmodule YahtzeePhoenix.Mixfile do
   def application do
     [mod: {YahtzeePhoenix, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :yahtzee, :comeonin, :gproc]]
+                    :phoenix_ecto, :postgrex, :yahtzee, :hasher, :gproc]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,7 +39,7 @@ defmodule YahtzeePhoenix.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:yahtzee, git: "git@bitbucket.org:eugzol/yahtzee.git", branch: "mr"},
-     {:comeonin, "~> 3.0"},
+     {:hasher, "~> 0.1"},
      {:gproc, "~> 0.6"}]
   end
 

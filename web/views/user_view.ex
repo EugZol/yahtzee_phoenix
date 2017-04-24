@@ -11,6 +11,7 @@ defmodule YahtzeePhoenix.UserView do
   end
 
   def this_is_current_user?(conn) do
-    Integer.to_string(conn.assigns.current_user.id) == conn.params["id"]
+    conn.assigns[:current_user] &&
+      Integer.to_string(conn.assigns.current_user.id) == conn.params["id"]
   end
 end

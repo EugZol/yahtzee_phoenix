@@ -20,7 +20,8 @@ defmodule YahtzeePhoenix.User do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :email, :password])
-    |> validate_required([:name, :email])
+    |> validate_required([:name, :email, :password])
+    |> unique_constraint(:email)
     |> hash_password
   end
 
@@ -29,7 +30,7 @@ defmodule YahtzeePhoenix.User do
   """
   def login(%{"email" => email, "password" => password}) do
     user = Repo.get_by(User, email: email)
-    if user && Comeonin.Bcrypt.checkpw(password, user.password_hash) do
+    if user && Hasher.check_password_hash(password, user.password_hash) do
       {:ok, user}
     else
       :error
@@ -45,7 +46,7 @@ defmodule YahtzeePhoenix.User do
   defp hash_password(changeset) do
     if changeset.params["password"] do
       changeset
-      |> put_change(:password_hash, Comeonin.Bcrypt.hashpwsalt(changeset.params["password"]))
+      |> put_change(:password_hash, Hasher.salted_password_hash(changeset.params["password"]))
     else
       changeset
     end
