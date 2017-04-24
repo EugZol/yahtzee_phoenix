@@ -211,8 +211,8 @@ let connectSocket = function({userId, userToken, roomToken, roomId}) {
       let td = `<td class='player user_${player['id']}'></td>`
       let th = `<th class='player user_${player['id']}'></th>`
 
-      $('th.player:nth-child(2)').before(th)
-      $('td.player:nth-child(2)').before(td)
+      $('th.player-first').after(th)
+      $('td.player-first').after(td)
 
       $(selector).html(player['name'])
     }

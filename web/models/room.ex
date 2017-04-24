@@ -14,6 +14,10 @@ defmodule YahtzeePhoenix.Room do
     timestamps()
   end
 
+  def finished?(room) do
+    !!room.winner_id
+  end
+
   def create_changeset do
     %__MODULE__{}
     |> cast(%{}, [:token])
