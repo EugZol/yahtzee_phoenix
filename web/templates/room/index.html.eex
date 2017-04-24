@@ -11,8 +11,9 @@
   </tbody>
 </table>
 
-<%= link "Create room", to: room_path(@conn, :create),
-  method: "post", class: 'btn btn-primary' %>
+<%= if @conn.assigns[:current_user] do %>
+  <%= link "Create room", to: room_path(@conn, :create), method: "post", class: 'btn btn-primary' %>
+<% end %>
 
 <h3>Finished rooms</h3>
 <table class="table">

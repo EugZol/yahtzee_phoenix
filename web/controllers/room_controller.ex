@@ -3,6 +3,10 @@ defmodule YahtzeePhoenix.RoomController do
 
   alias YahtzeePhoenix.Room
 
+  alias YahtzeePhoenix.Plugs.EnsureLoggedIn
+
+  plug EnsureLoggedIn when action in [:create, :show]
+
   def index(conn, _params) do
     finished_rooms =
       Room
